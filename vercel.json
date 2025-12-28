@@ -1,0 +1,27 @@
+# Vercel Deployment Configuration for Vite + React
+
+# 1. Add vercel.json (optional, for custom settings)
+{
+  "version": 2,
+  "builds": [
+    { "src": "frontend/index.html", "use": "@vercel/static-build", "config": { "distDir": "frontend/dist" } }
+  ],
+  "routes": [
+    { "src": "/(.*)", "dest": "/index.html" }
+  ]
+}
+
+# 2. Add build script to package.json (already present in most Vite projects)
+#    "build": "vite build"
+
+# 3. Make sure output dir is set to 'dist' in vite.config.ts (default)
+#    If you want to customize, set build.outDir in vite.config.ts
+
+# 4. Deploy root should be the project root (where package.json is)
+#    or set "rootDirectory": "frontend" in Vercel dashboard if needed.
+
+# 5. If using monorepo, set "rootDirectory" in Vercel project settings to 'frontend'.
+
+# 6. No need for api/ directory unless using serverless functions.
+
+# 7. .vercelignore can be added to exclude files from deployment (optional).
