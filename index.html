@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>1% (One Percent)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              navy: {
+                900: '#050505', // Almost Black
+                800: '#0a0a0a', // Very Dark Gray
+                700: '#1a1a1a', // Dark Gray
+              },
+              mantle: {
+                black: '#000000', // True Black
+                dark: '#050505',
+                card: '#0f0f0f',
+                teal: '#65b3ad', 
+                green: '#00E599', 
+                purple: '#8b5cf6',
+              },
+              agency: {
+                gray: '#222222',
+                light: '#444444',
+              }
+            },
+            fontFamily: {
+              sans: ['Pretendard', 'Helvetica Neue', 'Arial', 'sans-serif'],
+              serif: ['Playfair Display', 'serif'], // Added for editorial feel if needed
+            },
+            letterSpacing: {
+              tighter: '-0.05em',
+              tight: '-0.025em',
+              normal: '0em',
+              wide: '0.025em',
+              wider: '0.05em',
+              widest: '0.25em', // For labels
+            },
+            animation: {
+              'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+              'fade-in-up': 'fadeInUp 0.8s ease-out forwards',
+            },
+            keyframes: {
+              fadeInUp: {
+                '0%': { opacity: '0', transform: 'translateY(20px)' },
+                '100%': { opacity: '1', transform: 'translateY(0)' },
+              }
+            }
+          },
+        },
+      }
+    </script>
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css" />
+    <style>
+      /* Hide Scrollbar but allow scroll */
+      .hide-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .hide-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "lucide-react": "https://esm.sh/lucide-react@^0.562.0",
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "react": "https://esm.sh/react@^19.2.3",
+    "framer-motion": "https://esm.sh/framer-motion@11.18.2"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body class="bg-mantle-black text-white font-sans antialiased overflow-x-hidden selection:bg-white selection:text-black">
+    <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>
