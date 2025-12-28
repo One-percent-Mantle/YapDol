@@ -1,8 +1,9 @@
+
 import { Artist } from '../types';
 
 export const MOCK_ARTISTS: Artist[] = [
   {
-    id: '4', // KAI moved to top
+    id: '4', 
     name: '강현우',
     englishName: 'KAI',
     agency: 'SM',
@@ -13,8 +14,8 @@ export const MOCK_ARTISTS: Artist[] = [
     currentFunding: 325000,
     backers: 1240,
     dDay: 20,
-    // Intense, moody male dancer vibe
-    imageUrl: 'https://images.unsplash.com/photo-1605218457316-2d90ec1b4b39?q=80&w=1280&auto=format&fit=crop',
+    // Focused on a wider portrait for banner compatibility
+    imageUrl: 'https://images.unsplash.com/photo-1547153760-18fc86324498?q=100&w=2400&auto=format&fit=crop&crop=focalpoint&fp-y=0.3',
     isTrending: true,
     category: 'Trending'
   },
@@ -29,8 +30,7 @@ export const MOCK_ARTISTS: Artist[] = [
     marketCap: '13.0M USDC',
     floorPrice: 110,
     dDay: 0,
-    // Clean, high-fashion aesthetic
-    imageUrl: 'https://images.unsplash.com/photo-1616683693504-3ea7e9ad6fec?q=80&w=1279&auto=format&fit=crop',
+    imageUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=100&w=2400&auto=format&fit=crop&crop=focalpoint&fp-y=0.2',
     isTrending: true,
     category: 'Trending'
   },
@@ -45,8 +45,7 @@ export const MOCK_ARTISTS: Artist[] = [
     marketCap: '12.5M USDC',
     floorPrice: 105,
     dDay: 0,
-    // Vibrant, dreamy look
-    imageUrl: 'https://images.unsplash.com/photo-1620409736858-690226c48325?q=80&w=1280&auto=format&fit=crop',
+    imageUrl: 'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?q=100&w=2400&auto=format&fit=crop&crop=focalpoint&fp-y=0.25',
     isTrending: false,
     category: 'Trending'
   },
@@ -62,8 +61,7 @@ export const MOCK_ARTISTS: Artist[] = [
     currentFunding: 45000,
     backers: 120,
     dDay: 45,
-    // Street style, boyish
-    imageUrl: 'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?q=80&w=1280&auto=format&fit=crop',
+    imageUrl: 'https://images.unsplash.com/photo-1503443207922-dff7d543fd0e?q=100&w=2400&auto=format&fit=crop&crop=focalpoint&fp-y=0.3',
     isTrending: true,
     category: 'New Arrivals'
   },
@@ -79,8 +77,7 @@ export const MOCK_ARTISTS: Artist[] = [
     currentFunding: 180000,
     backers: 890,
     dDay: 5,
-    // Pure, innocent visual
-    imageUrl: 'https://images.unsplash.com/photo-1544357592-e52bd137aa30?q=80&w=1280&auto=format&fit=crop',
+    imageUrl: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?q=100&w=2400&auto=format&fit=crop&crop=focalpoint&fp-y=0.2',
     isTrending: false,
     category: 'New Arrivals'
   },
@@ -95,8 +92,7 @@ export const MOCK_ARTISTS: Artist[] = [
     marketCap: '12.2M USDC',
     floorPrice: 98,
     dDay: 0,
-    // Edgy, Hip-hop vibe
-    imageUrl: 'https://images.unsplash.com/photo-1520341280432-4749d4d7bcf9?q=80&w=1280&auto=format&fit=crop',
+    imageUrl: 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?q=100&w=2400&auto=format&fit=crop&crop=focalpoint&fp-y=0.2',
     isTrending: true,
     category: 'Trending'
   },
@@ -112,8 +108,7 @@ export const MOCK_ARTISTS: Artist[] = [
     currentFunding: 12000,
     backers: 45,
     dDay: 60,
-    // Unique atmosphere
-    imageUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1280&auto=format&fit=crop',
+    imageUrl: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=100&w=2400&auto=format&fit=crop&crop=focalpoint&fp-y=0.2',
     isTrending: false,
     category: 'Debut Soon'
   }

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Header } from './components/Header';
 import { Hero } from './components/Hero';
@@ -74,47 +75,49 @@ const App: React.FC = () => {
                       </div>
                    </div>
 
-                   {/* SPLIT VIEW - HEIGHT ADJUSTED FOR IMPACT */}
-                   <div className="flex flex-col lg:flex-row h-[120vh] lg:h-[90vh] min-h-[700px]">
+                   {/* SPLIT VIEW - WITH FADE-OUT TREATMENT TO PREVENT CLIPPING */}
+                   <div className="flex flex-col lg:flex-row h-[160vh] lg:h-[85vh] min-h-[800px] bg-black">
                       
                       {/* DIVISION 01: INCUBATION (TRAINEE) */}
                       <div 
                          onClick={() => handleNavigate('funding')}
-                         className="relative w-full lg:w-1/2 h-full group cursor-pointer overflow-hidden border-b lg:border-b-0 lg:border-r border-white/10"
+                         className="relative w-full lg:w-1/2 h-full group cursor-pointer overflow-hidden border-b lg:border-b-0 border-white/5"
                       >
-                         {/* Background Image - Optimized Visibility */}
-                         <div className="absolute inset-0 bg-neutral-900">
+                         {/* Image Container with Horizontal Fade-out (Left to Right) */}
+                         <div className="absolute inset-0">
                             <img 
-                               src="https://images.unsplash.com/photo-1516280440614-6697288d5d38?q=80&w=2070&auto=format&fit=crop" 
-                               className="w-full h-full object-cover opacity-60 grayscale-[50%] group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-1000 transform group-hover:scale-110"
-                               alt="Incubation"
+                               src="https://images.unsplash.com/photo-1547153760-18fc86324498?q=100&w=2400&auto=format&fit=crop" 
+                               className="w-full h-full object-cover object-[20%_20%] opacity-40 grayscale group-hover:grayscale-0 group-hover:opacity-70 transition-all duration-1000 transform group-hover:scale-105"
+                               alt="Incubation - Practice"
                             />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent group-hover:via-transparent transition-all duration-700"></div>
+                            {/* Inner Gradient Fade-out (Fades into center) */}
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-black/40 to-black z-10" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/20 z-10" />
                          </div>
 
                          {/* Content Overlay */}
-                         <div className="absolute inset-0 p-10 md:p-20 flex flex-col justify-between z-10">
+                         <div className="absolute inset-0 p-10 md:p-20 flex flex-col justify-between z-20">
                             <div className="flex justify-between items-start">
                                <div className="flex items-center gap-6">
                                   <div className="w-14 h-14 border border-white/20 rounded-full flex items-center justify-center bg-black/60 backdrop-blur-xl group-hover:bg-mantle-green group-hover:text-black group-hover:border-mantle-green transition-all duration-500">
                                      <span className="text-base font-black">01</span>
                                   </div>
-                                  <span className="text-[11px] font-black tracking-[0.4em] uppercase text-gray-400 group-hover:text-white transition-colors">Incubation</span>
+                                  <span className="text-[11px] font-black tracking-[0.4em] uppercase text-gray-500 group-hover:text-white transition-colors">Incubation</span>
                                </div>
                                <ArrowUpRight className="w-12 h-12 text-white opacity-0 group-hover:opacity-100 transition-all duration-500 transform group-hover:translate-x-3 group-hover:-translate-y-3" />
                             </div>
 
-                            <div className="space-y-10 transform translate-y-6 group-hover:translate-y-0 transition-all duration-700 ease-out">
-                               <h3 className="text-8xl md:text-9xl font-black text-white uppercase leading-[0.85] tracking-tighter mix-blend-overlay group-hover:mix-blend-normal transition-all duration-700">
+                            <div className="space-y-10">
+                               <h3 className="text-8xl md:text-9xl font-black text-white uppercase leading-[0.85] tracking-tighter group-hover:tracking-tight transition-all duration-700">
                                   Future<br/><span className="text-mantle-green italic">Sounds.</span>
                                </h3>
                                
                                <div className="space-y-8">
                                   <div className="w-20 h-1 bg-mantle-green origin-left transform scale-x-0 group-hover:scale-x-100 transition-transform duration-700 delay-100"></div>
-                                  <p className="text-xl text-gray-200 font-light max-w-sm leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity duration-700 delay-200">
+                                  <p className="text-lg text-gray-400 font-light max-w-sm leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity duration-700 delay-200">
                                      Discover raw potential. Access monthly evaluation data and support the debut journey of our elite trainees.
                                   </p>
-                                  <div className="inline-flex items-center gap-4 text-xs font-black uppercase tracking-[0.3em] text-white group-hover:text-mantle-green transition-colors">
+                                  <div className="inline-flex items-center gap-4 text-xs font-black uppercase tracking-[0.4em] text-white group-hover:text-mantle-green transition-colors">
                                      Enter Lab <ArrowRight className="w-6 h-6 group-hover:translate-x-3 transition-transform" />
                                   </div>
                                </div>
@@ -127,39 +130,41 @@ const App: React.FC = () => {
                          onClick={() => handleNavigate('market')}
                          className="relative w-full lg:w-1/2 h-full group cursor-pointer overflow-hidden"
                       >
-                         {/* Background Image - Optimized Visibility */}
-                         <div className="absolute inset-0 bg-neutral-900">
+                         {/* Image Container with Horizontal Fade-out (Right to Left) */}
+                         <div className="absolute inset-0">
                             <img 
-                               src="https://images.unsplash.com/photo-1493225255756-d9584f8606e9?q=80&w=2070&auto=format&fit=crop" 
-                               className="w-full h-full object-cover opacity-60 grayscale-[50%] group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-1000 transform group-hover:scale-110"
-                               alt="Main Label"
+                               src="https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?q=100&w=2400&auto=format&fit=crop" 
+                               className="w-full h-full object-cover object-[80%_40%] opacity-40 grayscale group-hover:grayscale-0 group-hover:opacity-70 transition-all duration-1000 transform group-hover:scale-105"
+                               alt="Main Label - Icon"
                             />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent group-hover:via-transparent transition-all duration-700"></div>
+                            {/* Inner Gradient Fade-out (Fades into center) */}
+                            <div className="absolute inset-0 bg-gradient-to-l from-transparent via-black/40 to-black z-10" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/20 z-10" />
                          </div>
 
                          {/* Content Overlay */}
-                         <div className="absolute inset-0 p-10 md:p-20 flex flex-col justify-between z-10">
+                         <div className="absolute inset-0 p-10 md:p-20 flex flex-col justify-between z-20">
                             <div className="flex justify-between items-start">
                                <div className="flex items-center gap-6">
                                   <div className="w-14 h-14 border border-white/20 rounded-full flex items-center justify-center bg-black/60 backdrop-blur-xl group-hover:bg-purple-600 group-hover:text-white group-hover:border-purple-600 transition-all duration-500">
                                      <span className="text-base font-black">02</span>
                                   </div>
-                                  <span className="text-[11px] font-black tracking-[0.4em] uppercase text-gray-400 group-hover:text-white transition-colors">Main Label</span>
+                                  <span className="text-[11px] font-black tracking-[0.4em] uppercase text-gray-500 group-hover:text-white transition-colors">Main Label</span>
                                </div>
                                <ArrowUpRight className="w-12 h-12 text-white opacity-0 group-hover:opacity-100 transition-all duration-500 transform group-hover:translate-x-3 group-hover:-translate-y-3" />
                             </div>
 
-                            <div className="space-y-10 transform translate-y-6 group-hover:translate-y-0 transition-all duration-700 ease-out">
-                               <h3 className="text-8xl md:text-9xl font-black text-white uppercase leading-[0.85] tracking-tighter mix-blend-overlay group-hover:mix-blend-normal transition-all duration-700">
+                            <div className="space-y-10">
+                               <h3 className="text-8xl md:text-9xl font-black text-white uppercase leading-[0.85] tracking-tighter group-hover:tracking-tight transition-all duration-700">
                                   Global<br/><span className="text-purple-500 italic">Icons.</span>
                                </h3>
                                
                                <div className="space-y-8">
                                   <div className="w-20 h-1 bg-purple-600 origin-left transform scale-x-0 group-hover:scale-x-100 transition-transform duration-700 delay-100"></div>
-                                  <p className="text-xl text-gray-200 font-light max-w-sm leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity duration-700 delay-200">
+                                  <p className="text-lg text-gray-400 font-light max-w-sm leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity duration-700 delay-200">
                                      Trade the value of established icons. Our proprietary 1% revenue burn mechanism is active.
                                   </p>
-                                  <div className="inline-flex items-center gap-4 text-xs font-black uppercase tracking-[0.3em] text-white group-hover:text-purple-400 transition-colors">
+                                  <div className="inline-flex items-center gap-4 text-xs font-black uppercase tracking-[0.4em] text-white group-hover:text-purple-400 transition-colors">
                                      Enter Market <ArrowRight className="w-6 h-6 group-hover:translate-x-3 transition-transform" />
                                   </div>
                                </div>

@@ -1,24 +1,19 @@
+
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   ArrowLeft, 
   TrendingUp, 
   ShieldCheck, 
-  Vote, 
-  Activity,
-  BarChart3,
   LayoutDashboard,
   Image as ImageIcon,
-  Star,
-  Globe,
-  Share2,
-  Mic2,
-  Music,
   UserCheck,
   Zap,
-  Lock,
   FileBarChart,
-  Target
+  Target,
+  Lock,
+  Unlock,
+  Sparkles
 } from 'lucide-react';
 import { Artist } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -31,12 +26,11 @@ interface ArtistDetailProps {
 type TabId = 'dashboard' | 'evaluation' | 'financials' | 'collection';
 
 export const ArtistDetail: React.FC<ArtistDetailProps> = ({ artist, onBack }) => {
-  const { t, language } = useLanguage();
+  const { language } = useLanguage();
   const isFunding = artist.status === 'funding';
   
-  // Set different initial tabs
-  const initialTab: TabId = 'dashboard';
-  const [activeTab, setActiveTab] = useState<TabId>(initialTab);
+  const [activeTab, setActiveTab] = useState<TabId>('dashboard');
+  const [hasToken, setHasToken] = useState(false); // Simulated state for token ownership
   
   const fundingPercent = isFunding 
     ? Math.floor(((artist.currentFunding || 0) / (artist.fundingGoal || 1)) * 100) 
@@ -44,7 +38,6 @@ export const ArtistDetail: React.FC<ArtistDetailProps> = ({ artist, onBack }) =>
 
   const displayName = language === 'ko' ? artist.name : artist.englishName;
 
-  // Tabs Configuration
   const tabs = isFunding ? [
     { id: 'dashboard', label: 'Overview', icon: <LayoutDashboard className="w-4 h-4" /> },
     { id: 'evaluation', label: 'Evaluation Log', icon: <FileBarChart className="w-4 h-4" /> },
@@ -55,182 +48,152 @@ export const ArtistDetail: React.FC<ArtistDetailProps> = ({ artist, onBack }) =>
     { id: 'collection', label: 'Gallery', icon: <ImageIcon className="w-4 h-4" /> },
   ];
 
+  // Exclusive Gallery Data for Artist
+  const galleryImages = [
+    { id: 1, title: 'Concept Archive #01', type: 'Editorial', url: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&q=80&w=800' },
+    { id: 2, title: 'Rehearsal Moment', type: 'Behind', url: 'https://images.unsplash.com/photo-1516280440614-6697288d5d38?auto=format&fit=crop&q=80&w=800' },
+    { id: 3, title: 'Visual Identity', type: 'Editorial', url: 'https://images.unsplash.com/photo-1529139513402-720a22bf9d78?auto=format&fit=crop&q=80&w=800' },
+    { id: 4, title: 'Backstage Archive', type: 'Behind', url: 'https://images.unsplash.com/photo-1493225255756-d9584f8606e9?auto=format&fit=crop&q=80&w=800' },
+    { id: 5, title: 'Studio Session', type: 'Making', url: 'https://images.unsplash.com/photo-1514525253361-bee8718a300a?auto=format&fit=crop&q=80&w=800' },
+    { id: 6, title: 'Official Profile V2', type: 'Editorial', url: 'https://images.unsplash.com/photo-1502035618526-6b2f1f5bca1b?auto=format&fit=crop&q=80&w=800' },
+  ];
+
   return (
-    <div className="animate-[fadeIn_0.5s_ease-out] bg-mantle-black min-h-screen relative">
+    <div className="animate-[fadeIn_0.5s_ease-out] bg-black min-h-screen relative">
       
-      {/* ================= HERO SECTION ================= */}
-      <section className="relative w-full h-[85vh] overflow-hidden">
+      {/* ================= HERO SECTION (OPTIMIZED FRAMING) ================= */}
+      <section className="relative w-full h-screen min-h-[700px] overflow-hidden">
+        {/* Background Image Layer */}
         <div className="absolute inset-0">
           <img 
             src={artist.imageUrl} 
             alt={artist.name} 
-            className="w-full h-full object-cover object-top filter contrast-[1.1] brightness-[0.8]"
+            // object-[50%_20%] ensures the focus remains on the top portion (head/face)
+            className="w-full h-full object-cover object-[50%_20%] filter contrast-[1.1] brightness-[0.75] transition-transform duration-[4s] scale-100 animate-[slowZoom_15s_ease-in-out_infinite]"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/30" />
+          {/* Advanced Gradients for Text Legibility & Aesthetic Depth */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-black/30" />
           <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-black/10 backdrop-contrast-125" />
         </div>
 
-        {/* Back Button */}
-        <div className="absolute top-8 left-6 sm:left-12 z-50">
-           <button 
-             onClick={onBack} 
-             className="flex items-center gap-3 text-white/70 hover:text-white transition-colors group"
-           >
-              <div className="w-10 h-10 border border-white/30 rounded-full flex items-center justify-center group-hover:border-white group-hover:bg-white group-hover:text-black transition-all">
-                 <ArrowLeft className="w-4 h-4" />
+        {/* Back Navigation Overlay */}
+        <div className="absolute top-10 left-6 sm:left-12 z-50">
+           <button onClick={onBack} className="flex items-center gap-4 text-white/50 hover:text-white transition-all group">
+              <div className="w-12 h-12 border border-white/10 rounded-full flex items-center justify-center group-hover:border-white/40 group-hover:scale-110 transition-all bg-black/20 backdrop-blur-md">
+                 <ArrowLeft className="w-5 h-5" />
               </div>
-              <span className="text-xs font-bold tracking-[0.2em] uppercase hidden sm:block">Back to Roster</span>
+              <span className="text-[10px] font-black tracking-[0.4em] uppercase hidden sm:block">Back to Roster</span>
            </button>
         </div>
 
-        {/* Hero Content */}
-        <div className="absolute bottom-0 left-0 w-full p-6 sm:p-12 pb-16 z-20">
-           <div className="max-w-[1600px] mx-auto flex flex-col md:flex-row items-end justify-between gap-12">
-              <div className="max-w-4xl space-y-4">
-                 <div className="flex items-center gap-4 animate-[fadeInUp_0.8s_ease-out]">
-                    <span className={`px-3 py-1 text-[10px] font-black tracking-[0.2em] uppercase ${isFunding ? 'bg-mantle-green text-black' : 'bg-purple-600 text-white'}`}>
-                       {isFunding ? 'Incubation' : 'Main Label'}
+        {/* Brand/Status Badge */}
+        <div className="absolute top-10 right-12 z-50 hidden lg:block">
+           <div className="flex flex-col items-end">
+              <span className="text-[10px] font-black tracking-widest text-white/30 uppercase mb-2">Licensed Artist Profile</span>
+              <div className="h-0.5 w-12 bg-white/20"></div>
+           </div>
+        </div>
+
+        {/* Hero Content Overlay (Bottom Anchored) */}
+        <div className="absolute bottom-0 left-0 w-full p-6 sm:p-12 pb-24 z-20">
+           <div className="max-w-[1600px] mx-auto">
+              <motion.div 
+                initial={{ opacity: 0, x: -50 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.8, ease: "circOut" }}
+                className="max-w-4xl space-y-6"
+              >
+                 <div className="inline-block">
+                    <span className={`px-4 py-1.5 text-[9px] font-black tracking-[0.3em] uppercase ${isFunding ? 'bg-mantle-green text-black' : 'bg-purple-600 text-white'}`}>
+                       {isFunding ? 'Incubation Division' : 'Main Label Artist'}
                     </span>
                  </div>
 
-                 <h1 className="text-8xl sm:text-9xl font-black text-white leading-[0.8] tracking-tighter uppercase italic mix-blend-overlay">
+                 <h1 className="text-8xl sm:text-[11rem] font-black text-white leading-[0.8] tracking-tighter uppercase italic drop-shadow-2xl">
                     {displayName}<span className={`${isFunding ? 'text-mantle-green' : 'text-purple-500'}`}>.</span>
                  </h1>
                  
-                 <div className="border-l border-white/30 pl-6 pt-2">
-                    <p className="text-xl md:text-2xl font-light text-white/90 max-w-2xl leading-relaxed">
+                 <div className="border-l-2 border-white/20 pl-8 py-2 max-w-2xl">
+                    <p className="text-xl md:text-2xl font-light text-white/80 leading-relaxed tracking-tight italic">
                        {isFunding 
-                          ? "Raw talent in the incubation system. Support the debut journey." 
-                          : "Global icon dominating the charts. Revenue-backed asset."}
+                          ? "Witness the incubation of a future icon. Every training log, every rehearsal, secured on-chain." 
+                          : "Defining global excellence. Asset value backed by verified 1% revenue streams."}
                     </p>
                  </div>
-              </div>
-
-              {/* Quick Stats */}
-              <div className="hidden md:flex gap-12 text-right">
-                 <div>
-                    <div className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mb-1">Category</div>
-                    <div className="text-xl font-bold text-white">{isFunding ? 'Trainee' : 'Artist'}</div>
-                 </div>
-                 <div>
-                    <div className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mb-1">Agency</div>
-                    <div className="text-xl font-bold text-white">{artist.agency}</div>
-                 </div>
-                 {isFunding ? (
-                    <div>
-                       <div className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mb-1">D-Day</div>
-                       <div className="text-xl font-bold text-mantle-green">D-{artist.dDay}</div>
-                    </div>
-                 ) : (
-                    <div>
-                       <div className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mb-1">Burn Rate</div>
-                       <div className="text-xl font-bold text-purple-400">High</div>
-                    </div>
-                 )}
-              </div>
+              </motion.div>
            </div>
         </div>
       </section>
 
-      {/* ================= TABS ================= */}
-      <div className="sticky top-0 z-40 bg-black/90 backdrop-blur-md border-b border-white/10">
+      {/* ================= STICKY TABS ================= */}
+      <div className="sticky top-0 z-40 bg-black/95 backdrop-blur-xl border-b border-white/10 shadow-2xl">
         <div className="max-w-[1600px] mx-auto px-6 sm:px-12">
            <div className="flex justify-between items-center h-20">
-              <div className="flex space-x-12 h-full">
-                 {tabs.map((tab) => {
-                    // @ts-ignore
-                    const isActive = activeTab === tab.id;
-                    return (
-                       <button
-                          key={tab.id}
-                          // @ts-ignore
-                          onClick={() => setActiveTab(tab.id)}
-                          className={`
-                             relative flex items-center gap-2 h-full text-xs font-bold uppercase tracking-[0.2em] transition-colors
-                             ${isActive ? 'text-white' : 'text-gray-500 hover:text-gray-300'}
-                          `}
-                       >
-                          {tab.label}
-                          {isActive && (
-                             <motion.div 
-                                layoutId="activeTabIndicator"
-                                className={`absolute bottom-0 left-0 w-full h-0.5 ${isFunding ? 'bg-mantle-green' : 'bg-purple-500'}`}
-                             />
-                          )}
-                       </button>
-                    );
-                 })}
+              <div className="flex space-x-16 h-full">
+                 {tabs.map((tab) => (
+                    <button
+                       key={tab.id}
+                       onClick={() => setActiveTab(tab.id as TabId)}
+                       className={`relative flex items-center gap-2 h-full text-[10px] font-black uppercase tracking-[0.3em] transition-all ${activeTab === tab.id ? 'text-white' : 'text-gray-600 hover:text-gray-300'}`}
+                    >
+                       {tab.label}
+                       {activeTab === tab.id && <motion.div layoutId="activeTabIndicator" className={`absolute bottom-0 left-0 w-full h-0.5 ${isFunding ? 'bg-mantle-green' : 'bg-purple-500'}`} />}
+                    </button>
+                 ))}
               </div>
            </div>
         </div>
       </div>
 
-      {/* ================= CONTENT ================= */}
-      <div className="max-w-[1600px] mx-auto px-6 sm:px-12 py-16">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
+      {/* ================= CONTENT AREA ================= */}
+      <div className="max-w-[1600px] mx-auto px-6 sm:px-12 py-24">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-24">
           
-          {/* MAIN CONTENT (8 cols) */}
-          <div className="lg:col-span-8 min-h-[500px]">
+          <div className="lg:col-span-8">
              <AnimatePresence mode="wait">
                 <motion.div
                    key={activeTab}
-                   initial={{ opacity: 0, y: 10 }}
+                   initial={{ opacity: 0, y: 20 }}
                    animate={{ opacity: 1, y: 0 }}
-                   exit={{ opacity: 0, y: -10 }}
-                   transition={{ duration: 0.3 }}
+                   exit={{ opacity: 0, y: -20 }}
+                   transition={{ duration: 0.5, ease: "circOut" }}
                 >
-                   {/* 1. DASHBOARD OVERVIEW */}
                    {activeTab === 'dashboard' && (
-                      <div className="space-y-16">
-                         <div className="prose prose-invert max-w-none">
-                            <h3 className="text-2xl font-bold uppercase tracking-tight mb-6">Executive Summary</h3>
-                            <p className="text-xl text-gray-300 font-light leading-relaxed">
+                      <div className="space-y-24">
+                         <div className="space-y-8">
+                            <h3 className="text-xs font-black uppercase tracking-[0.4em] text-gray-500">Artist Profile</h3>
+                            <p className="text-3xl md:text-5xl text-white font-light leading-[1.2] tracking-tight">
                                {isFunding 
-                                  ? `${artist.englishName} has consistently ranked in the top 1% of the monthly evaluations. With exceptional vocal range and stage presence, the debut probability is calculated at 94%. Funds raised will be used for global training camps and debut music video production.`
-                                  : `${artist.englishName} continues to dominate global charts. Revenue from the recent world tour and brand deals has triggered a massive buyback event. The token floor price has increased by 15% this quarter due to the 1% burn mechanism.`}
+                                  ? `${artist.englishName} has redefined the training standards at ${artist.agency}. Ranking candidate #1 for the upcoming global debut.`
+                                  : `${artist.englishName} is a global phenomenon. Every performance reinforces intrinsic value via our proprietary 1% revenue burn engine.`}
                             </p>
                          </div>
-
-                         {/* Unique Metrics Grid */}
-                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                             {isFunding ? (
                                <>
-                                  <div className="p-8 bg-neutral-900 border border-white/5 rounded-2xl">
-                                     <div className="flex items-center gap-3 mb-8">
-                                        <Target className="w-5 h-5 text-mantle-green" />
-                                        <span className="text-xs font-bold uppercase tracking-widest text-gray-500">Debut Probability</span>
-                                     </div>
-                                     <div className="text-6xl font-black text-white mb-2">94<span className="text-2xl text-mantle-green">%</span></div>
-                                     <div className="w-full h-1 bg-gray-800 rounded-full overflow-hidden">
-                                        <div className="w-[94%] h-full bg-mantle-green"></div>
-                                     </div>
+                                  <div className="p-10 bg-white/5 border border-white/5 group hover:border-mantle-green/30 transition-all duration-700">
+                                     <div className="flex items-center gap-4 mb-10"><Target className="w-5 h-5 text-mantle-green" /><span className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-500">Debut Probability</span></div>
+                                     <div className="text-7xl font-black text-white mb-6">94<span className="text-3xl text-mantle-green font-light">%</span></div>
+                                     <div className="w-full h-0.5 bg-white/10 overflow-hidden"><div className="w-[94%] h-full bg-mantle-green shadow-[0_0_15px_rgba(0,229,153,0.5)]"></div></div>
                                   </div>
-                                  <div className="p-8 bg-neutral-900 border border-white/5 rounded-2xl">
-                                     <div className="flex items-center gap-3 mb-8">
-                                        <UserCheck className="w-5 h-5 text-white" />
-                                        <span className="text-xs font-bold uppercase tracking-widest text-gray-500">Backer Count</span>
-                                     </div>
-                                     <div className="text-6xl font-black text-white mb-2">{artist.backers}</div>
-                                     <div className="text-sm text-gray-400">Verified Investors</div>
+                                  <div className="p-10 bg-white/5 border border-white/5 group hover:border-white/20 transition-all duration-700">
+                                     <div className="flex items-center gap-4 mb-10"><UserCheck className="w-5 h-5 text-white" /><span className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-500">Backer Community</span></div>
+                                     <div className="text-7xl font-black text-white mb-4">{artist.backers}</div>
+                                     <div className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Verified Global Investors</div>
                                   </div>
                                </>
                             ) : (
                                <>
-                                  <div className="p-8 bg-neutral-900 border border-white/5 rounded-2xl">
-                                     <div className="flex items-center gap-3 mb-8">
-                                        <Zap className="w-5 h-5 text-purple-500" />
-                                        <span className="text-xs font-bold uppercase tracking-widest text-gray-500">Revenue Yield (APY)</span>
-                                     </div>
-                                     <div className="text-6xl font-black text-white mb-2">12.4<span className="text-2xl text-purple-500">%</span></div>
-                                     <div className="text-sm text-gray-400">Paid via Token Buyback</div>
+                                  <div className="p-10 bg-white/5 border border-white/5 group hover:border-purple-500/30 transition-all duration-700">
+                                     <div className="flex items-center gap-4 mb-10"><Zap className="w-5 h-5 text-purple-500" /><span className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-500">Market Yield (Est)</span></div>
+                                     <div className="text-7xl font-black text-white mb-4">12.4<span className="text-3xl text-purple-500 font-light">%</span></div>
+                                     <div className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Driven by Buyback & Burn</div>
                                   </div>
-                                  <div className="p-8 bg-neutral-900 border border-white/5 rounded-2xl">
-                                     <div className="flex items-center gap-3 mb-8">
-                                        <ShieldCheck className="w-5 h-5 text-white" />
-                                        <span className="text-xs font-bold uppercase tracking-widest text-gray-500">Floor Price</span>
-                                     </div>
-                                     <div className="text-6xl font-black text-white mb-2">105<span className="text-xl text-gray-500 ml-2">USDC</span></div>
-                                     <div className="text-sm text-gray-400">Guaranteed by Treasury</div>
+                                  <div className="p-10 bg-white/5 border border-white/5 group hover:border-white/20 transition-all duration-700">
+                                     <div className="flex items-center gap-4 mb-10"><ShieldCheck className="w-5 h-5 text-white" /><span className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-500">Market Floor</span></div>
+                                     <div className="text-7xl font-black text-white mb-4">110<span className="text-2xl text-gray-500 ml-4 font-light">USDC</span></div>
+                                     <div className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Guaranteed Asset Value</div>
                                   </div>
                                </>
                             )}
@@ -238,192 +201,148 @@ export const ArtistDetail: React.FC<ArtistDetailProps> = ({ artist, onBack }) =>
                       </div>
                    )}
 
-                   {/* 2. EVALUATION LOG (TRAINEE ONLY) */}
-                   {activeTab === 'evaluation' && isFunding && (
-                      <div className="space-y-8">
-                         <div className="flex justify-between items-center mb-8">
-                           <h3 className="text-2xl font-bold uppercase tracking-tight">Monthly Assessment</h3>
-                           <span className="text-sm font-mono text-mantle-green">Latest Update: Dec 2024</span>
-                         </div>
-                         
-                         <div className="bg-neutral-900 border border-white/5 p-8 rounded-2xl">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                               {/* Skill Bars */}
-                               <div className="space-y-6">
-                                  <div>
-                                     <div className="flex justify-between text-xs font-bold uppercase tracking-widest mb-2 text-gray-400">Vocal Stability</div>
-                                     <div className="h-2 bg-black rounded-full overflow-hidden">
-                                        <div className="h-full w-[92%] bg-white rounded-full"></div>
-                                     </div>
-                                  </div>
-                                  <div>
-                                     <div className="flex justify-between text-xs font-bold uppercase tracking-widest mb-2 text-gray-400">Dance Technique</div>
-                                     <div className="h-2 bg-black rounded-full overflow-hidden">
-                                        <div className="h-full w-[88%] bg-white rounded-full"></div>
-                                     </div>
-                                  </div>
-                                  <div>
-                                     <div className="flex justify-between text-xs font-bold uppercase tracking-widest mb-2 text-gray-400">Star Quality</div>
-                                     <div className="h-2 bg-black rounded-full overflow-hidden">
-                                        <div className="h-full w-[98%] bg-mantle-green rounded-full shadow-[0_0_10px_rgba(0,229,153,0.5)]"></div>
-                                     </div>
-                                  </div>
-                               </div>
-
-                               {/* Trainer Comment */}
-                               <div className="border-l border-white/10 pl-8 flex flex-col justify-center">
-                                  <div className="text-4xl text-white/20 font-serif mb-4">"</div>
-                                  <p className="text-lg text-gray-300 italic mb-4 leading-relaxed">
-                                     Exceptional growth in stage presence. The trainee has successfully found their unique signature sound this month. Ready for the next phase.
-                                  </p>
-                                  <div className="flex items-center gap-3">
-                                     <div className="w-8 h-8 bg-gray-700 rounded-full"></div>
-                                     <div className="text-xs font-bold uppercase tracking-widest">Head Trainer</div>
-                                  </div>
-                               </div>
-                            </div>
-                         </div>
-                      </div>
-                   )}
-
-                   {/* 3. FINANCIAL REPORT (ARTIST ONLY) */}
-                   {activeTab === 'financials' && !isFunding && (
-                      <div className="space-y-8">
-                         <div className="flex justify-between items-center mb-8">
-                           <h3 className="text-2xl font-bold uppercase tracking-tight">Revenue & Burn Report</h3>
-                           <span className="text-sm font-mono text-purple-500">Live Data</span>
-                         </div>
-
-                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            {/* Revenue Sources */}
-                            <div className="col-span-2 bg-neutral-900 border border-white/5 p-8 rounded-2xl">
-                               <h4 className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-6">Revenue Mix</h4>
-                               <div className="space-y-4">
-                                  <div className="flex items-center gap-4">
-                                     <div className="w-32 text-sm font-bold">Streaming</div>
-                                     <div className="flex-1 h-8 bg-gray-800 rounded flex overflow-hidden">
-                                        <div className="h-full bg-blue-500 w-[45%]"></div>
-                                     </div>
-                                     <span className="text-sm font-mono">45%</span>
-                                  </div>
-                                  <div className="flex items-center gap-4">
-                                     <div className="w-32 text-sm font-bold">Concerts</div>
-                                     <div className="flex-1 h-8 bg-gray-800 rounded flex overflow-hidden">
-                                        <div className="h-full bg-purple-500 w-[35%]"></div>
-                                     </div>
-                                     <span className="text-sm font-mono">35%</span>
-                                  </div>
-                                  <div className="flex items-center gap-4">
-                                     <div className="w-32 text-sm font-bold">Merch</div>
-                                     <div className="flex-1 h-8 bg-gray-800 rounded flex overflow-hidden">
-                                        <div className="h-full bg-pink-500 w-[20%]"></div>
-                                     </div>
-                                     <span className="text-sm font-mono">20%</span>
-                                  </div>
-                               </div>
-                            </div>
-
-                            {/* Burn Stat */}
-                            <div className="col-span-1 bg-gradient-to-b from-purple-900/50 to-black border border-purple-500/20 p-8 rounded-2xl flex flex-col justify-between">
-                               <div>
-                                  <h4 className="text-xs font-bold uppercase tracking-widest text-purple-300 mb-2">Total Burnt</h4>
-                                  <p className="text-xs text-gray-400 mb-6">Tokens removed from supply</p>
-                                  <div className="text-4xl font-black text-white">$452,100</div>
-                               </div>
-                               <div className="text-[10px] text-gray-500 font-mono mt-8">
-                                  TX: 0x8a...3f92
-                               </div>
-                            </div>
-                         </div>
-                      </div>
-                   )}
-
-                   {/* 4. GALLERY (COMMON) */}
                    {activeTab === 'collection' && (
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                         {[1,2,3,4,5,6].map(i => (
-                            <div key={i} className="aspect-[4/5] bg-neutral-900 border border-white/5 rounded-xl overflow-hidden relative group">
-                               <img 
-                                  src={`https://images.unsplash.com/photo-${1500000000000 + i * 10000}?auto=format&fit=crop&w=500&q=60`}
-                                  className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity"
-                               />
-                               <div className="absolute top-2 right-2 bg-black/60 px-2 py-1 rounded text-[10px] font-bold uppercase border border-white/20">
-                                  NFT
-                               </div>
+                      <div className="space-y-12">
+                         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-white/10 pb-12">
+                            <div>
+                               <h3 className="text-5xl font-black uppercase tracking-tighter mb-2 italic">Vision Archive.</h3>
+                               <p className="text-gray-500 text-[11px] font-bold tracking-widest uppercase flex items-center gap-2">
+                                  <Sparkles className="w-3.5 h-3.5 text-mantle-green" /> 
+                                  Exclusive high-definition content for authorized holders
+                               </p>
                             </div>
-                         ))}
+                            <button 
+                               onClick={() => setHasToken(!hasToken)}
+                               className={`px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-3 ${hasToken ? 'bg-mantle-green text-black' : 'bg-white/10 text-white hover:bg-white/20'}`}
+                            >
+                               {hasToken ? <><Unlock className="w-3.5 h-3.5" /> Token Detected</> : <><Lock className="w-3.5 h-3.5" /> Verify Tokens</>}
+                            </button>
+                         </div>
+
+                         <div className="grid grid-cols-2 md:grid-cols-3 gap-8">
+                            {galleryImages.map((img) => (
+                               <div key={img.id} className="relative aspect-[3/4] bg-neutral-900 overflow-hidden group">
+                                  <img 
+                                     src={img.url}
+                                     className={`w-full h-full object-cover transition-all duration-1000 scale-105 group-hover:scale-100 
+                                        ${!hasToken ? 'filter blur-2xl grayscale brightness-50' : 'filter grayscale group-hover:grayscale-0'}`}
+                                     alt={img.title}
+                                  />
+                                  {!hasToken && (
+                                     <div className="absolute inset-0 flex flex-col items-center justify-center p-6 bg-black/40 backdrop-blur-sm group-hover:bg-black/20 transition-all duration-500">
+                                        <div className="w-14 h-14 border border-white/20 rounded-full flex items-center justify-center mb-6 bg-black/60 backdrop-blur-xl group-hover:scale-110 transition-transform">
+                                           <Lock className="w-6 h-6 text-white/50" />
+                                        </div>
+                                        <div className="text-center space-y-2">
+                                           <div className="text-[10px] font-black text-white/40 uppercase tracking-[0.4em] leading-tight">Exclusive</div>
+                                           <div className="text-[9px] font-bold text-mantle-green uppercase tracking-widest bg-mantle-green/10 px-2 py-0.5">1% Holder Only</div>
+                                        </div>
+                                     </div>
+                                  )}
+                                  <div className={`absolute inset-0 p-6 flex flex-col justify-end bg-gradient-to-t from-black via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 ${!hasToken ? 'pointer-events-none' : ''}`}>
+                                     <span className="text-[9px] font-black text-mantle-green uppercase tracking-widest mb-1">{img.type}</span>
+                                     <h4 className="text-lg font-black text-white uppercase italic tracking-tighter">{img.title}</h4>
+                                  </div>
+                               </div>
+                            ))}
+                         </div>
+                         {!hasToken && (
+                            <div className="p-12 border border-white/5 bg-gradient-to-br from-white/5 to-transparent text-center space-y-8 mt-12">
+                               <div className="max-w-md mx-auto space-y-4">
+                                  <h4 className="text-2xl font-black uppercase tracking-tighter">Unlock the Full Archive.</h4>
+                                  <p className="text-sm text-gray-500 font-light leading-relaxed">
+                                     To access high-resolution concept photos, behind-the-scenes films, and monthly practice logs, you must hold at least 1 unit of {displayName}'s official token.
+                                  </p>
+                               </div>
+                               <button className="px-12 py-5 bg-white text-black font-black uppercase tracking-[0.3em] text-xs hover:bg-mantle-green transition-all hover:scale-105 active:scale-95 shadow-2xl">
+                                  {isFunding ? 'Join Funding to Unlock' : 'Buy Assets in Market'}
+                               </button>
+                            </div>
+                         )}
+                      </div>
+                   )}
+                   
+                   {activeTab === 'evaluation' && (
+                      <div className="bg-white/5 p-12 border border-white/5">
+                        <div className="flex justify-between items-start mb-16">
+                           <h3 className="text-4xl font-black uppercase tracking-tighter italic">Assessment Archive.</h3>
+                           <span className="text-[10px] font-black text-mantle-green uppercase tracking-widest">Latest Score: S+</span>
+                        </div>
+                        <div className="space-y-12">
+                           {['Vocal Precision', 'Dance Mechanics', 'Stage Presence'].map((skill, i) => (
+                             <div key={skill} className="space-y-4">
+                               <div className="flex justify-between text-[11px] font-black uppercase tracking-[0.2em] text-gray-400">
+                                 <span>{skill}</span><span>{[92, 88, 98][i]}%</span>
+                               </div>
+                               <div className="h-px w-full bg-white/10"><motion.div initial={{ width: 0 }} animate={{ width: `${[92, 88, 98][i]}%` }} transition={{ duration: 1.5, ease: "circOut", delay: i * 0.2 }} className="h-full bg-white"/></div>
+                             </div>
+                           ))}
+                        </div>
+                      </div>
+                   )}
+                   
+                   {activeTab === 'financials' && (
+                      <div className="p-12 bg-white/5 border border-white/5">
+                         <h3 className="text-4xl font-black uppercase tracking-tighter mb-12 italic">Revenue Cycle.</h3>
+                         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                            <div className="space-y-8">
+                               <div className="flex justify-between items-end border-b border-white/10 pb-4"><span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Total Traded</span><span className="text-xl font-black">$4.2M</span></div>
+                               <div className="flex justify-between items-end border-b border-white/10 pb-4"><span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Burned Supply</span><span className="text-xl font-black text-purple-500">14,200 1%</span></div>
+                            </div>
+                            <div className="flex flex-col justify-center text-right p-8 bg-purple-600/10 border border-purple-500/20">
+                               <div className="text-[10px] font-black text-purple-400 uppercase tracking-widest mb-2">Buyback Status</div><div className="text-5xl font-black">ACTIVE</div>
+                            </div>
+                         </div>
                       </div>
                    )}
                 </motion.div>
              </AnimatePresence>
           </div>
 
-          {/* RIGHT SIDEBAR (Sticky) */}
-          <div className="lg:col-span-4 pl-0 lg:pl-12 border-l border-white/0 lg:border-white/5">
-             <div className="sticky top-32 space-y-8">
-                
-                {/* ACTION CARD */}
-                <div className="bg-neutral-900 border border-white/10 p-8 relative overflow-hidden group">
-                   <div className={`absolute top-0 left-0 w-full h-1 ${isFunding ? 'bg-mantle-green' : 'bg-purple-500'}`}></div>
-                   
-                   <div className="flex justify-between items-end mb-8">
-                      <div>
-                         <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-500 mb-2">
-                            {isFunding ? 'Funding Goal' : 'Market Price'}
-                         </div>
-                         <div className="text-4xl font-black text-white italic">
-                            {artist.price.toLocaleString()} <span className="text-sm not-italic text-gray-500">USDC</span>
-                         </div>
+          {/* SIDEBAR (Sticky Transaction Block) */}
+          <div className="lg:col-span-4">
+             <div className="sticky top-32 space-y-12">
+                <div className="bg-white p-12 text-black relative shadow-2xl">
+                   <div className="space-y-12">
+                      <div className="space-y-2">
+                         <div className="text-[9px] font-black uppercase tracking-[0.4em] text-gray-400">Current Valuation</div>
+                         <div className="text-6xl font-black tracking-tighter italic">{artist.price.toLocaleString()}<span className="text-sm not-italic ml-2 font-black">USDC</span></div>
                       </div>
-                   </div>
-
-                   {isFunding ? (
-                      <div className="space-y-6">
-                         <div className="space-y-2">
-                            <div className="flex justify-between text-xs font-bold uppercase">
-                               <span className="text-gray-400">Progress</span>
-                               <span className="text-mantle-green">{fundingPercent}%</span>
+                      {isFunding ? (
+                         <div className="space-y-8">
+                            <div className="space-y-3">
+                               <div className="flex justify-between text-[10px] font-black uppercase tracking-widest"><span>Archive Progress</span><span>{fundingPercent}%</span></div>
+                               <div className="h-1 w-full bg-gray-100"><div className="h-full bg-black" style={{ width: `${fundingPercent}%` }}></div></div>
                             </div>
-                            <div className="h-1 bg-gray-800 w-full">
-                               <div className="h-full bg-mantle-green" style={{ width: `${fundingPercent}%` }}></div>
-                            </div>
+                            <button className="w-full py-5 bg-black text-white font-black uppercase tracking-[0.3em] text-xs hover:bg-mantle-green hover:text-black transition-all">Join Roster</button>
                          </div>
-                         <button className="w-full py-4 bg-white hover:bg-mantle-green text-black font-black uppercase tracking-widest text-sm transition-colors">
-                            Invest Now
-                         </button>
-                      </div>
-                   ) : (
-                      <div className="grid grid-cols-2 gap-4">
-                         <button className="py-4 bg-purple-600 hover:bg-purple-500 text-white font-black uppercase tracking-widest text-sm transition-colors">
-                            Buy
-                         </button>
-                         <button className="py-4 bg-transparent border border-white/20 hover:bg-white hover:text-black text-white font-black uppercase tracking-widest text-sm transition-colors">
-                            Sell
-                         </button>
-                      </div>
-                   )}
-                </div>
-
-                {/* INFO CARD */}
-                <div className="p-6 border border-white/5">
-                   <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-500 mb-4">Management</h4>
-                   <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-white text-black flex items-center justify-center font-black">
-                         {artist.agency.substring(0,2)}
-                      </div>
-                      <div>
-                         <div className="font-bold text-white">{artist.agency} Ent.</div>
-                         <div className="text-xs text-gray-500">Official Partner</div>
-                      </div>
+                      ) : (
+                         <div className="grid grid-cols-2 gap-4">
+                            <button className="py-5 bg-black text-white font-black uppercase tracking-[0.3em] text-xs hover:bg-purple-600 transition-colors">Buy Asset</button>
+                            <button className="py-5 bg-transparent border border-black text-black font-black uppercase tracking-[0.3em] text-xs hover:bg-black hover:text-white transition-all">Sell</button>
+                         </div>
+                      )}
                    </div>
                 </div>
-
+                <div className="p-10 border border-white/10 space-y-6 bg-black/40 backdrop-blur-md">
+                   <h4 className="text-[9px] font-black uppercase tracking-[0.4em] text-gray-500">Authorized Agency</h4>
+                   <div className="flex items-center gap-6">
+                      <div className="w-16 h-16 bg-white text-black flex items-center justify-center font-black text-xl italic">{artist.agency.substring(0,2)}</div>
+                      <div className="space-y-1"><div className="font-black text-white text-lg tracking-tighter uppercase">{artist.agency} ENTERTAINMENT</div><div className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Official Management</div></div>
+                   </div>
+                </div>
              </div>
           </div>
 
         </div>
       </div>
-
+      
+      <style>{`
+        @keyframes slowZoom { 
+          0%, 100% { transform: scale(1); } 
+          50% { transform: scale(1.08); } 
+        }
+      `}</style>
     </div>
   );
 };
