@@ -35,7 +35,12 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin
         </button>
 
         <div className="text-center space-y-4 mb-12">
-          <span className="text-4xl font-black italic tracking-tighter text-white">1%</span>
+          <div className="flex justify-center items-center gap-2 mb-2">
+            <span className="text-4xl font-black italic tracking-tighter text-white uppercase">
+              YAP<span className="text-mantle-green">DOL</span>
+            </span>
+            <div className="w-2 h-2 bg-mantle-green rounded-full animate-pulse mt-2"></div>
+          </div>
           <h2 className="text-2xl font-black uppercase tracking-tight text-white">Join the Roster</h2>
           <p className="text-sm text-gray-500 font-light leading-relaxed">
             Connect to start investing in the next global K-Pop icons. Secure, on-chain, and exclusive.
