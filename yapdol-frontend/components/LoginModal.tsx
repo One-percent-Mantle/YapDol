@@ -1,7 +1,8 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Wallet, Globe, Chrome } from 'lucide-react';
+import { X, Wallet, Globe, Chrome, AlertCircle, Loader2 } from 'lucide-react';
+import { useWallet } from '../hooks/useWallet';
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -10,6 +11,35 @@ interface LoginModalProps {
 }
 
 export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin }) => {
+  const { 
+    isConnected, 
+    isConnecting, 
+    isCorrectNetwork, 
+    connectWallet, 
+    switchToMantleSepolia,
+    connectError 
+  } = useWallet();
+
+  // isConnected 상태 변화 감지하여 로그인 처리
+  useEffect(() => {
+    if (isOpen && isConnected) {
+      if (isCorrectNetwork) {
+        onLogin('wallet');
+      } else {
+        // 연결되었지만 네트워크가 다르면 전환 요청
+        switchToMantleSepolia();
+      }
+    }
+  }, [isOpen, isConnected, isCorrectNetwork]);
+
+  const handleWalletConnect = async () => {
+    const success = await connectWallet();
+    // connectWallet이 성공하면 useEffect에서 isConnected 변화 감지하여 로그인 처리
+    if (success && isConnected) {
+      onLogin('wallet');
+    }
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -48,11 +78,38 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin
         </div>
 
         <div className="space-y-4">
+          {isConnected && !isCorrectNetwork && (
+            <div className="flex items-center gap-3 p-4 bg-yellow-500/10 border border-yellow-500/30 text-yellow-500 text-xs">
+              <AlertCircle className="w-4 h-4 flex-shrink-0" />
+              <span>Mantle Sepolia 네트워크로 전환이 필요합니다</span>
+            </div>
+          )}
+
+          {connectError && (
+            <div className="flex items-center gap-3 p-4 bg-red-500/10 border border-red-500/30 text-red-500 text-xs">
+              <AlertCircle className="w-4 h-4 flex-shrink-0" />
+              <span>연결 실패: {connectError.message}</span>
+            </div>
+          )}
+
           <button 
-            onClick={() => onLogin('wallet')}
-            className="w-full py-4 bg-white text-black font-black uppercase tracking-[0.2em] text-xs flex items-center justify-center gap-4 hover:bg-mantle-green transition-all"
+            onClick={handleWalletConnect}
+            disabled={isConnecting}
+            className="w-full py-4 bg-white text-black font-black uppercase tracking-[0.2em] text-xs flex items-center justify-center gap-4 hover:bg-mantle-green transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <Wallet className="w-4 h-4" /> Connect Mantle Wallet
+            {isConnecting ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" /> Connecting...
+              </>
+            ) : isConnected && !isCorrectNetwork ? (
+              <>
+                <Wallet className="w-4 h-4" /> Switch to Mantle Sepolia
+              </>
+            ) : (
+              <>
+                <Wallet className="w-4 h-4" /> Connect Wallet
+              </>
+            )}
           </button>
           
           <div className="relative py-4 flex items-center">

@@ -13,9 +13,11 @@ import { SearchOverlay } from './components/SearchOverlay';
 import { LoginModal } from './components/LoginModal';
 import { Artist, ViewType, User } from './types';
 import { useLanguage } from './contexts/LanguageContext';
+import { useWallet } from './hooks/useWallet';
 
 const App: React.FC = () => {
   const { t } = useLanguage();
+  const { address, shortenedAddress, balance, disconnect } = useWallet();
   const [currentView, setCurrentView] = useState<ViewType>('home');
   const [selectedArtist, setSelectedArtist] = useState<Artist | null>(null);
   const [user, setUser] = useState<User | null>(null);
@@ -39,20 +41,21 @@ const App: React.FC = () => {
   };
 
   const handleLogin = (provider: 'google' | 'x' | 'wallet') => {
-    const mockUser: User = {
-      id: 'yap_01',
-      name: 'Alpha_Yapper',
+    const walletUser: User = {
+      id: address || 'yap_01',
+      name: shortenedAddress || 'Alpha_Yapper',
       profileImage: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=200&auto=format&fit=crop',
       provider,
-      balance: 420.0,
-      hypeScore: 84200,
-      walletAddress: provider === 'wallet' ? '0xYAP...D45' : undefined
+      balance: balance || 0,
+      hypeScore: 0,
+      walletAddress: address || undefined
     };
-    setUser(mockUser);
+    setUser(walletUser);
     setIsLoginModalOpen(false);
   };
 
   const handleLogout = () => {
+    disconnect();
     setUser(null);
     if (currentView === 'mypage') setCurrentView('home');
   };
