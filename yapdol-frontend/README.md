@@ -20,5 +20,5 @@
 - **Safe Multi-sig Treasury**: 자금의 70%를 안전하게 보호하여 아티스트 성장을 위한 순수 자금으로 활용.
 - **Transparent Governance**: 데뷔 컨셉, 곡 선정 등 주요 의사결정에 팬들이 직접 참여.
 
----
+---1
 *© 2025 1% Entertainment. Powered by Mantle Network.*
