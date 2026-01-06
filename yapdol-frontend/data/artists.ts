@@ -115,7 +115,7 @@ export const MOCK_ARTISTS: Artist[] = [
     contributorCount: 128000,
     campaignDDay: 7,
     availableGoodsCount: 15,
-    youtubeId: 'b73BI9eL07w',
+    youtubeId: 'XD00TJ-6WSw',
     growthRate: 8.2,
     totalHypeDistributed: '$4.5M',
     nicknames: ['Fashion Icon', 'Rap Star'],
