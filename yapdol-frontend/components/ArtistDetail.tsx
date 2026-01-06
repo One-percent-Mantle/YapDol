@@ -184,33 +184,34 @@ export const ArtistDetail: React.FC<ArtistDetailProps> = ({ artist, onBack, user
 
   // Artist Specific Vault Content
   const vaultPhotos = artist.id === '1' ? [
-    '../public/MJ1.png',
-    '../public/HN2.png',
-    '../public/HR3.png',
-    '../public/HN4.png',
-    '../public/HR1.png',
-    '../public/HR4.png',
+    'MJ1.png',
+    'HN2.png',
+    'HR3.png',
+    'HN4.png',
+    'HR1.png',
+    'HR4.png',
   ] : artist.id === '4' ? [
-    '../public/KAI1.png',
-    '../public/KAI2.png',
-    '../public/KAI3.png',
-    '../public/KAI4.png',
-    '../public/KAI5.png',
-    '../public/KAI6.png',
+    'KAI1.png',
+    'KAI2.png',
+    'KAI3.png',
+    'KAI4.png',
+    'KAI5.png',
+    'KAI6.png',
   ] : artist.id === '6' ? [
-    '../public/SY1.png',
-    '../public/SY2.png',
-    '../public/SY3.png',
-    '../public/SY4.png',
-    '../public/SY5.png',
-    '../public/SY6.png',
+    'SY1.png',
+    'SY2.png',
+    'SY3.png',
+    'SY4.png',
+    'SY5.png',
+    'SY6.png',
+
   ] : [
-      '../public/JN1.png',
-      '../public/JN2.png',
-      '../public/JN3.png',
-      '../public/JN4.png',
-      '../public/JN5.png',
-      '../public/JN6.png',
+      'JN1.png',
+      'JN2.png',
+      'JN3.png',
+      'JN4.png',
+      'JN5.png',
+      'JN6.png',
   ];
 
   const goods = [
