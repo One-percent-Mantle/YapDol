@@ -17,7 +17,7 @@ export const MOCK_ARTISTS: Artist[] = [
     youtubeId: 'jOTfBlKSQYY',
     nicknames: ['Visual Queen', 'Natural Talent'],
     dDay: 2, 
-    imageUrl: './data/민지2.png',
+    imageUrl: '../public/MJ2.png',
     isTrending: true,
     category: 'Trending'
   },
@@ -36,7 +36,7 @@ export const MOCK_ARTISTS: Artist[] = [
     youtubeId: 'Q-VX60sGRjo',
     nicknames: ['Visual Center', 'Powerful Vocal', 'Dance Machine'],
     dDay: 20,
-    imageUrl: './data/카이7.png',
+    imageUrl: '../public/KAI7.png',
     isTrending: true,
     category: 'Trending'
   },
@@ -98,7 +98,7 @@ export const MOCK_ARTISTS: Artist[] = [
     totalHypeDistributed: '$1.2M',
     nicknames: ['Dance Prodigy', 'Global Muse'],
     dDay: 0,
-    imageUrl: './data/설윤7.png',
+    imageUrl: '../public/SY7.png',
     isTrending: true,
     category: 'Trending'
   },
@@ -120,7 +120,7 @@ export const MOCK_ARTISTS: Artist[] = [
     totalHypeDistributed: '$4.5M',
     nicknames: ['Fashion Icon', 'Rap Star'],
     dDay: 0,
-    imageUrl: './data/제니7.png',
+    imageUrl: '../public/JN7.png',
     isTrending: true,
     category: 'Trending'
   }
