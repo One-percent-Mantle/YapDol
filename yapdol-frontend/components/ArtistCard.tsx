@@ -12,6 +12,7 @@ interface ArtistCardProps {
 export const ArtistCard: React.FC<ArtistCardProps> = ({ artist, onClick }) => {
   const { t, language } = useLanguage();
   const isTrainee = artist.status === 'funding';
+  const isComingSoon = artist.comingSoon;
   const displayName = language === 'ko' ? artist.name : artist.englishName;
   
   const hypeProgress = isTrainee 
@@ -20,8 +21,8 @@ export const ArtistCard: React.FC<ArtistCardProps> = ({ artist, onClick }) => {
 
   return (
     <div 
-      onClick={onClick}
-      className="group cursor-pointer flex flex-col relative overflow-hidden bg-[#0a0a0a] border border-white/5 shadow-2xl transition-all duration-700 hover:shadow-[0_0_80px_rgba(0,229,153,0.15)]"
+      onClick={isComingSoon ? undefined : onClick}
+      className={`group flex flex-col relative overflow-hidden bg-[#0a0a0a] border border-white/5 shadow-2xl transition-all duration-700 ${isComingSoon ? 'cursor-not-allowed' : 'cursor-pointer hover:shadow-[0_0_80px_rgba(0,229,153,0.15)]'}`}
     >
       <div className="relative aspect-[2/3] overflow-hidden">
         
@@ -30,7 +31,7 @@ export const ArtistCard: React.FC<ArtistCardProps> = ({ artist, onClick }) => {
           <img 
             src={artist.imageUrl} 
             alt={displayName}
-            className="w-full h-full object-cover transition-transform duration-[3s] ease-out group-hover:scale-110 filter brightness-[0.8] grayscale-[10%] group-hover:grayscale-0 group-hover:brightness-100"
+            className={`w-full h-full object-cover transition-transform duration-[3s] ease-out filter brightness-[0.8] grayscale-[10%] ${isComingSoon ? 'blur-md opacity-50' : 'group-hover:scale-110 group-hover:grayscale-0 group-hover:brightness-100'}`}
           />
           {/* Gradients for text visibility */}
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
@@ -55,6 +56,16 @@ export const ArtistCard: React.FC<ArtistCardProps> = ({ artist, onClick }) => {
               </span>
            </div>
         </div>
+
+        {/* Coming Soon Overlay */}
+        {isComingSoon && (
+          <div className="absolute inset-0 z-40 flex items-center justify-center bg-black/30 backdrop-blur-sm">
+            <div className="text-center space-y-2">
+              <p className="text-white font-black uppercase tracking-[0.3em] text-lg">Coming Soon</p>
+              <p className="text-gray-300 text-xs uppercase tracking-widest">준비 중</p>
+            </div>
+          </div>
+        )}
 
         {/* Artist Name & Agency Branding */}
         <div className="absolute bottom-[35%] left-0 w-full px-8 z-20 space-y-2">

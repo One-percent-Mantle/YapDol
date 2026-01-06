@@ -93,7 +93,7 @@ const App: React.FC = () => {
           <>
             {currentView === 'home' && (
               <>
-                <Hero />
+                <Hero onYappingClick={() => handleNavigate('funding')} />
                 <section className="relative w-full bg-black z-10">
                    <div className="w-full bg-black border-y border-white/5 py-32 px-6 sm:px-12">
                       <div className="max-w-[1600px] mx-auto flex flex-col md:flex-row justify-between items-end">

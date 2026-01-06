@@ -3,7 +3,11 @@ import React from 'react';
 import { Play, TrendingUp, Sparkles } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
-export const Hero: React.FC = () => {
+interface HeroProps {
+  onYappingClick?: () => void;
+}
+
+export const Hero: React.FC<HeroProps> = ({ onYappingClick }) => {
   const { t } = useLanguage();
 
   return (
@@ -24,11 +28,9 @@ export const Hero: React.FC = () => {
         <div className="max-w-4xl space-y-10 animate-fade-in-up">
           <div className="inline-flex items-center space-x-6">
             <span className="px-4 py-1.5 bg-mantle-green/5 border border-mantle-green/20 text-mantle-green font-black tracking-[0.4em] text-[10px] uppercase flex items-center gap-2">
-               <Sparkles className="w-3.5 h-3.5" /> 
                Next-Gen Entertainment Protocol
             </span>
             <div className="flex items-center gap-3 text-gray-500 text-[10px] font-black uppercase tracking-[0.4em]">
-               <TrendingUp className="w-3.5 h-3.5 text-mantle-pink" /> 
                1.4B YAP Accumulated
             </div>
           </div>
@@ -45,7 +47,9 @@ export const Hero: React.FC = () => {
           </div>
 
           <div className="flex flex-wrap items-center gap-8 pt-8">
-             <button className="px-10 py-5 bg-blue-600 text-white font-black tracking-[0.4em] text-[10px] uppercase hover:bg-white hover:text-black transition-all transform hover:scale-105 active:scale-95 shadow-[0_15px_40px_rgba(37,99,235,0.5)]">
+             <button 
+               onClick={onYappingClick}
+               className="px-10 py-5 bg-blue-600 text-white font-black tracking-[0.4em] text-[10px] uppercase hover:bg-white hover:text-black transition-all transform hover:scale-105 active:scale-95 shadow-[0_15px_40px_rgba(37,99,235,0.5)]">
                 {t.hero.cta}
              </button>
              

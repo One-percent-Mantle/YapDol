@@ -14,7 +14,8 @@ interface MarketPageProps {
 
 export const MarketPage: React.FC<MarketPageProps> = ({ onArtistSelect, onNavigate, user }) => {
   const { t, language } = useLanguage();
-  const [selectedTrainee, setSelectedTrainee] = useState<Artist>(MOCK_ARTISTS[0]);
+  const availableArtists = MOCK_ARTISTS.filter(a => !a.comingSoon);
+  const [selectedTrainee, setSelectedTrainee] = useState<Artist>(availableArtists[0]);
 
   const mockLeaderboard: LeaderboardEntry[] = [
     { rank: 1, nickname: 'Vocal_Lover_99', points: 142500, share: 0.85 },
@@ -26,7 +27,7 @@ export const MarketPage: React.FC<MarketPageProps> = ({ onArtistSelect, onNaviga
     { rank: 7, nickname: 'Aesthete_Fan', points: 65400, share: 0.38 },
   ];
 
-  const risingIcons = MOCK_ARTISTS.filter(a => a.id !== selectedTrainee.id);
+  const risingIcons = availableArtists.filter(a => a.id !== selectedTrainee.id);
 
   const handleContextualArtistSelect = (artist: Artist) => {
     if (artist.status === 'funding') {
@@ -56,7 +57,7 @@ export const MarketPage: React.FC<MarketPageProps> = ({ onArtistSelect, onNaviga
           </div>
           
           <div className="flex gap-8 overflow-x-auto pb-8 hide-scrollbar">
-            {MOCK_ARTISTS.map((artist) => {
+            {availableArtists.map((artist) => {
               const isActive = selectedTrainee.id === artist.id;
               const artistName = language === 'ko' ? artist.name : artist.englishName;
               return (

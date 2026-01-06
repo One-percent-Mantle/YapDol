@@ -86,16 +86,16 @@ export const ArtistDetail: React.FC<ArtistDetailProps> = ({ artist, onBack, user
   const displayName = language === 'ko' ? artist.name : artist.englishName;
 
   const tabs = isFunding ? [
-    { id: 'dashboard', label: t.detail.overview, icon: <LayoutDashboard className="w-4 h-4" /> },
-    { id: 'growth', label: t.detail.growthLog, icon: <MessageCircle className="w-4 h-4" /> },
-    { id: 'vault', label: t.detail.visualVault, icon: <ImageIcon className="w-4 h-4" /> },
-    { id: 'live', label: 'LIVE', icon: <div className="w-1.5 h-1.5 bg-red-600 rounded-full animate-[pulse_1.5s_infinite] shadow-[0_0_8px_rgba(220,38,38,1)]" /> },
+    { id: 'dashboard', label: t.detail.overview },
+    { id: 'growth', label: t.detail.growthLog },
+    { id: 'vault', label: t.detail.visualVault },
+    { id: 'live', label: 'LIVE' },
   ] : [
-    { id: 'dashboard', label: t.detail.overview, icon: <LayoutDashboard className="w-4 h-4" /> },
-    { id: 'live', label: 'LIVE', icon: <div className="w-1.5 h-1.5 bg-red-600 rounded-full animate-[pulse_1.5s_infinite] shadow-[0_0_8px_rgba(220,38,38,1)]" /> },
-    { id: 'activity', label: t.detail.activityLog, icon: <History className="w-4 h-4" /> },
-    { id: 'goods', label: t.detail.goodsMarket, icon: <ShoppingBag className="w-4 h-4" /> },
-    { id: 'vault', label: t.detail.visualVault, icon: <ImageIcon className="w-4 h-4" /> },
+    { id: 'dashboard', label: t.detail.overview },
+    { id: 'live', label: 'LIVE' },
+    { id: 'activity', label: t.detail.activityLog },
+    { id: 'goods', label: t.detail.goodsMarket },
+    { id: 'vault', label: t.detail.visualVault },
   ];
 
   const supportItems: SupportItem[] = [
@@ -110,7 +110,10 @@ export const ArtistDetail: React.FC<ArtistDetailProps> = ({ artist, onBack, user
       setMessages([
         { id: '1', user: 'HypeKing', text: language === 'ko' ? '드디어 시작하네요!! 대박' : 'It is finally starting!! Amazing', tier: 'gold', avatar: 'https://i.pravatar.cc/150?u=hk' },
         { id: '2', user: 'MinjiStan', text: language === 'ko' ? '오늘 비주얼 미쳤다 ㅠㅠ' : 'Visual is insane today TT', tier: 'silver', avatar: 'https://i.pravatar.cc/150?u=ms' },
-        { id: '3', user: 'GlobalFan_01', text: 'Love from Japan ❤️', tier: 'none', avatar: 'https://i.pravatar.cc/150?u=gf' },
+        { id: '3', user: 'GlobalFan_01', text: 'Love from Japan', tier: 'none', avatar: './data/하니2.png' },
+        { id: '3', user: 'GlobalFan_01', text: 'Love from Indonesia', tier: 'none', avatar: './data/해린2.png' },
+        { id: '3', user: 'GlobalFan_01', text: 'Love from USA', tier: 'none', avatar: './data/민지3.png' },
+        { id: '3', user: 'GlobalFan_01', text: 'Love from Africa ❤️', tier: 'none', avatar: 'https://i.pravatar.cc/150?u=gf' },
       ]);
       
       const interval = setInterval(() => {
@@ -181,19 +184,33 @@ export const ArtistDetail: React.FC<ArtistDetailProps> = ({ artist, onBack, user
 
   // Artist Specific Vault Content
   const vaultPhotos = artist.id === '1' ? [
-    'https://images.unsplash.com/photo-1695431527581-df96c56b784b?q=80&w=800&auto=format&fit=crop',
-    'https://images.unsplash.com/photo-1695431527632-159483329124?q=80&w=800&auto=format&fit=crop',
-    'https://images.unsplash.com/photo-1707198889988-c70e28f237f3?q=80&w=800&auto=format&fit=crop',
-    'https://images.unsplash.com/photo-1705646197205-0e95655755bc?q=80&w=800&auto=format&fit=crop',
-    'https://images.unsplash.com/photo-1701021481744-84226f34587a?q=80&w=800&auto=format&fit=crop',
-    'https://images.unsplash.com/photo-1701021480928-87a419266613?q=80&w=800&auto=format&fit=crop',
+    './data/민지1.png',
+    './data/하니2.png',
+    './data/민지3.png',
+    './data/민지4.png',
+    './data/민지5.png',
+    './data/민지6.png',
+  ] : artist.id === '4' ? [
+    './data/카이1.png',
+    './data/카이2.png',
+    './data/카이3.png',
+    './data/카이4.png',
+    './data/카이5.png',
+    './data/카이6.png',
+  ] : artist.id === '6' ? [
+    './data/설윤1.png',
+    './data/설윤2.png',
+    './data/설윤3.png',
+    './data/설윤4.png',
+    './data/설윤5.png',
+    './data/설윤6.png',
   ] : [
-    'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?q=80&w=800&auto=format&fit=crop',
-    'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=800&auto=format&fit=crop',
-    'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=800&auto=format&fit=crop',
-    'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=800&auto=format&fit=crop',
-    'https://images.unsplash.com/photo-1502602732142-3e5b77bf586d?q=80&w=800&auto=format&fit=crop',
-    'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?q=80&w=800&auto=format&fit=crop',
+    './data/제니1.png',
+    './data/제니2.png',
+    './data/제니3.png',
+    './data/제니4.png',
+    './data/제니5.png',
+    './data/제니6.png',
   ];
 
   const goods = [
@@ -224,7 +241,7 @@ export const ArtistDetail: React.FC<ArtistDetailProps> = ({ artist, onBack, user
           <img 
             src={artist.imageUrl} 
             alt={artist.name} 
-            className="w-full h-full object-cover object-[50%_20%] filter brightness-[0.7] scale-100 animate-[slowZoom_20s_ease-in-out_infinite]"
+            className="w-full h-full object-cover object-[50%_40%] filter brightness-[0.7] scale-100 animate-[slowZoom_20s_ease-in-out_infinite]"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/10 to-transparent" />
           <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-transparent to-transparent" />
@@ -281,9 +298,7 @@ export const ArtistDetail: React.FC<ArtistDetailProps> = ({ artist, onBack, user
                        onClick={() => setActiveTab(tab.id as TabId)}
                        className={`relative flex items-center gap-2 h-full text-[9px] font-black uppercase tracking-[0.3em] transition-all ${activeTab === tab.id ? 'text-white' : 'text-gray-600 hover:text-gray-300'}`}
                     >
-                       {tab.icon && tab.id !== 'live' && tab.icon}
                        {tab.label}
-                       {tab.id === 'live' && tab.icon}
                        {activeTab === tab.id && <motion.div layoutId="activeTabIndicator" className={`absolute bottom-0 left-0 w-full h-px ${isFunding ? 'bg-mantle-green' : 'bg-mantle-pink'}`} />}
                     </button>
                  ))}

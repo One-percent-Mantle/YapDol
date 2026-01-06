@@ -9,6 +9,7 @@ export interface Artist {
   englishName: string;
   agency: string;
   status: ArtistStatus;
+  comingSoon?: boolean; // Mark artist as coming soon
   
   // Support Data (Campaigns)
   hypePoints?: number;
