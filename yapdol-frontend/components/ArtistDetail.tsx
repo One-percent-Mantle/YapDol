@@ -110,9 +110,9 @@ export const ArtistDetail: React.FC<ArtistDetailProps> = ({ artist, onBack, user
       setMessages([
         { id: '1', user: 'HypeKing', text: language === 'ko' ? '드디어 시작하네요!! 대박' : 'It is finally starting!! Amazing', tier: 'gold', avatar: 'https://i.pravatar.cc/150?u=hk' },
         { id: '2', user: 'MinjiStan', text: language === 'ko' ? '오늘 비주얼 미쳤다 ㅠㅠ' : 'Visual is insane today TT', tier: 'silver', avatar: 'https://i.pravatar.cc/150?u=ms' },
-        { id: '3', user: 'GlobalFan_01', text: 'Love from Japan', tier: 'none', avatar: './data/하니2.png' },
-        { id: '3', user: 'GlobalFan_01', text: 'Love from Indonesia', tier: 'none', avatar: './data/해린2.png' },
-        { id: '3', user: 'GlobalFan_01', text: 'Love from USA', tier: 'none', avatar: './data/민지3.png' },
+        { id: '3', user: 'GlobalFan_01', text: 'Love from Japan', tier: 'none', avatar: 'HN2.png' },
+        { id: '3', user: 'GlobalFan_01', text: 'Love from Indonesia', tier: 'none', avatar: 'HR2.png' },
+        { id: '3', user: 'GlobalFan_01', text: 'Love from USA', tier: 'none', avatar: 'MJ3.png' },
         { id: '3', user: 'GlobalFan_01', text: 'Love from Africa ❤️', tier: 'none', avatar: 'https://i.pravatar.cc/150?u=gf' },
       ]);
       
