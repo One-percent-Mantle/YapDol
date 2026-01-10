@@ -1,10 +1,22 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Wallet, Star, ArrowRight, Youtube, Instagram, ChevronDown, ChevronUp, Link as LinkIcon, History, MessageCircle, Share2, Zap, Trophy, Repeat } from 'lucide-react';
 import { User as UserType, Artist } from '../types';
 import { MOCK_ARTISTS } from '../data/artists';
 import { useLanguage } from '../contexts/LanguageContext';
+import { 
+  fetchUser, 
+  fetchPortfolio, 
+  fetchPromotionCounts, 
+  fetchPromotionHistory, 
+  fetchActivity,
+  UserData,
+  PortfolioItem,
+  PromotionCounts,
+  PromotionHistory,
+  ActivityItem
+} from '../services/api';
 
 // Custom X Icon Component
 const XIcon = ({ className }: { className?: string }) => (
@@ -21,31 +33,154 @@ interface MyPageProps {
 export const MyPage: React.FC<MyPageProps> = ({ user, onArtistSelect }) => {
   const { t, language } = useLanguage();
   const [expandedArtistId, setExpandedArtistId] = useState<string | null>(null);
-
-  // Select specific artists: Mix of Funding (Trainee) and Market (Debuted)
-  const myInvestments = [MOCK_ARTISTS[0], MOCK_ARTISTS[5], MOCK_ARTISTS[1]];
-
-  const toggleExpand = (id: string) => {
-    setExpandedArtistId(expandedArtistId === id ? null : id);
+  
+  // 숫자에 콤마 포맷 적용
+  const formatNumber = (num: number | string): string => {
+    const n = typeof num === 'string' ? parseFloat(num) : num;
+    if (isNaN(n)) return String(num);
+    return n.toLocaleString('en-US');
   };
 
-  // Mock Promotional History Data
-  const getMockPromotions = (artistName: string) => [
-    { id: 1, date: '2024.12.20', platform: 'YouTube', link: '#', icon: <Youtube className="w-3 h-3 text-red-500" /> },
-    { id: 2, date: '2024.12.18', platform: 'X', link: '#', icon: <XIcon className="w-3 h-3 text-white" /> },
-    { id: 3, date: '2024.12.15', platform: 'Instagram', link: '#', icon: <Instagram className="w-3 h-3 text-pink-500" /> },
-  ];
+  // DB 데이터 상태
+  const [dbUser, setDbUser] = useState<UserData | null>(null);
+  const [portfolio, setPortfolio] = useState<PortfolioItem[]>([]);
+  const [activities, setActivities] = useState<ActivityItem[]>([]);
+  const [promoCounts, setPromoCounts] = useState<Record<number, PromotionCounts>>({});
+  const [promoHistory, setPromoHistory] = useState<Record<number, PromotionHistory[]>>({});
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Expanded Activity Ledger Data - Outlined Style
-  const ledgerActivities = [
-    { type: 'SUPPORT', artist: 'MINJI', amount: '120 PTS', date: '2H AGO', color: 'text-blue-400 border border-blue-500' },
-    { type: 'DIVIDEND', artist: 'HAERIN', amount: '450 PTS', date: '5H AGO', color: 'text-mantle-pink border border-mantle-pink' },
-    { type: 'CAMPAIGN', artist: 'KAI', amount: '500 PTS', date: '1D AGO', color: 'text-yellow-400 border border-yellow-400' },
-    { type: 'SUPPORT', artist: 'SOHEE', amount: '50 PTS', date: '2D AGO', color: 'text-blue-400 border border-blue-500' },
-    { type: 'SWAP', artist: 'JUN', amount: '1,000 PTS', date: '3D AGO', color: 'text-mantle-green border border-mantle-green' },
-    { type: 'DIVIDEND', artist: 'JENNIE', amount: '2,100 PTS', date: '4D AGO', color: 'text-mantle-pink border border-mantle-pink' },
-    { type: 'SUPPORT', artist: 'MINJI', amount: '300 PTS', date: '1W AGO', color: 'text-blue-400 border border-blue-500' },
-  ];
+  // 지갑 연결 시 DB 데이터 로드
+  useEffect(() => {
+    const loadData = async () => {
+      if (!user.walletAddress) return;
+      
+      setIsLoading(true);
+      try {
+        const [userData, portfolioData, activityData] = await Promise.all([
+          fetchUser(user.walletAddress),
+          fetchPortfolio(user.walletAddress),
+          fetchActivity(user.walletAddress)
+        ]);
+        
+        if (userData) setDbUser(userData);
+        if (portfolioData.length > 0) setPortfolio(portfolioData);
+        if (activityData.length > 0) setActivities(activityData);
+        
+        // 각 아티스트별 프로모션 카운트 로드
+        const countsMap: Record<number, PromotionCounts> = {};
+        for (const item of portfolioData) {
+          const counts = await fetchPromotionCounts(user.walletAddress!, item.artist_id);
+          countsMap[item.artist_id] = counts;
+        }
+        setPromoCounts(countsMap);
+      } catch (err) {
+        console.error('Failed to load data:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    loadData();
+  }, [user.walletAddress]);
+
+  // 포트폴리오를 Artist 형식으로 변환 (DB 데이터가 있으면 사용, 없으면 Mock)
+  // 이미지는 MOCK_ARTISTS에서 가져옴 (하드코딩)
+  const findMockArtist = (englishName: string) => 
+    MOCK_ARTISTS.find(a => a.englishName.toUpperCase() === englishName.toUpperCase());
+
+  const myInvestments: (Artist & { dbHoldings?: number; dbMyPoints?: number; dbArtistId?: number })[] = 
+    portfolio.length > 0 
+      ? portfolio.map(p => {
+          const mockArtist = findMockArtist(p.english_name);
+          return {
+            id: String(p.artist_id),
+            name: p.korean_name,
+            englishName: p.english_name,
+            agency: p.agency,
+            status: p.status as 'funding' | 'market',
+            hypePoints: p.hype_points,
+            price: 0,
+            currency: 'P',
+            dDay: p.d_day || 0,
+            imageUrl: mockArtist?.imageUrl || p.image_url,  // Mock 이미지 우선 사용
+            isTrending: false,
+            category: 'Trending' as const,
+            dbHoldings: p.holdings,
+            dbMyPoints: p.my_points,
+            dbArtistId: p.artist_id
+          };
+        })
+      : [MOCK_ARTISTS[0], MOCK_ARTISTS[5], MOCK_ARTISTS[1]];
+
+  const toggleExpand = async (id: string, artistId?: number) => {
+    setExpandedArtistId(expandedArtistId === id ? null : id);
+    
+    // 프로모션 히스토리 로드
+    if (user.walletAddress && artistId && !promoHistory[artistId]) {
+      const history = await fetchPromotionHistory(user.walletAddress, artistId);
+      setPromoHistory(prev => ({ ...prev, [artistId]: history }));
+    }
+  };
+
+  // 프로모션 히스토리 (DB 또는 Mock)
+  const getPromotions = (artistId?: number) => {
+    if (artistId && promoHistory[artistId]?.length > 0) {
+      return promoHistory[artistId].map((p, i) => ({
+        id: p.id,
+        date: new Date(p.created_at).toLocaleDateString('ko-KR').replace(/\./g, '.').slice(0, -1),
+        platform: p.platform.charAt(0).toUpperCase() + p.platform.slice(1),
+        link: p.link,
+        icon: p.platform === 'youtube' ? <Youtube className="w-3 h-3 text-red-500" /> :
+              p.platform === 'x' ? <XIcon className="w-3 h-3 text-white" /> :
+              <Instagram className="w-3 h-3 text-pink-500" />
+      }));
+    }
+    return [
+      { id: 1, date: '2024.12.20', platform: 'YouTube', link: '#', icon: <Youtube className="w-3 h-3 text-red-500" /> },
+      { id: 2, date: '2024.12.18', platform: 'X', link: '#', icon: <XIcon className="w-3 h-3 text-white" /> },
+      { id: 3, date: '2024.12.15', platform: 'Instagram', link: '#', icon: <Instagram className="w-3 h-3 text-pink-500" /> },
+    ];
+  };
+
+  // 활동 내역 색상 매핑
+  const getActivityColor = (type: string) => {
+    switch (type) {
+      case 'SUPPORT': return 'text-blue-400 border border-blue-500';
+      case 'REWARD': return 'text-mantle-pink border border-mantle-pink';
+      case 'CAMPAIGN': return 'text-yellow-400 border border-yellow-400';
+      case 'SWAP': return 'text-mantle-green border border-mantle-green';
+      default: return 'text-gray-400 border border-gray-500';
+    }
+  };
+
+  // 시간 포맷
+  const formatTimeAgo = (dateStr: string) => {
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffDays = Math.floor(diffHours / 24);
+    
+    if (diffHours < 1) return 'NOW';
+    if (diffHours < 24) return `${diffHours}H AGO`;
+    if (diffDays < 7) return `${diffDays}D AGO`;
+    return `${Math.floor(diffDays / 7)}W AGO`;
+  };
+
+  // 활동 내역 (DB 또는 Mock)
+  const ledgerActivities = activities.length > 0 
+    ? activities.map(a => ({
+        type: a.activity_type,
+        artist: a.artist_name.toUpperCase(),
+        amount: a.amount,
+        date: formatTimeAgo(a.created_at),
+        color: getActivityColor(a.activity_type)
+      }))
+    : [
+        { type: 'SUPPORT', artist: 'MINJI', amount: '120 PTS', date: '2H AGO', color: 'text-blue-400 border border-blue-500' },
+        { type: 'REWARD', artist: 'SULYOON', amount: '450 PTS', date: '5H AGO', color: 'text-mantle-pink border border-mantle-pink' },
+        { type: 'SWAP', artist: 'JENNIE', amount: '1,000 PTS', date: '1D AGO', color: 'text-mantle-green border border-mantle-green' },
+      ];
 
   return (
     <div className="min-h-screen pt-32 pb-24 bg-black animate-[fadeIn_0.5s_ease-out]">
@@ -59,7 +194,7 @@ export const MyPage: React.FC<MyPageProps> = ({ user, onArtistSelect }) => {
             </div>
             <div className="space-y-2">
               <div className="flex items-center gap-4">
-                 <h2 className="text-4xl font-black uppercase tracking-tighter italic text-white">{user.name}</h2>
+                 <h2 className="text-4xl font-black uppercase tracking-tighter italic text-white">{dbUser ? dbUser.username : user.name}</h2>
                  <span className="px-2 py-0.5 bg-mantle-green/10 text-mantle-green text-[8px] font-black uppercase tracking-widest border border-mantle-green/20">{t.mypage.authorized}</span>
               </div>
               <div className="flex items-center gap-3 text-gray-600 font-mono text-xs">
@@ -72,17 +207,17 @@ export const MyPage: React.FC<MyPageProps> = ({ user, onArtistSelect }) => {
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-10 text-right">
              <div className="space-y-1">
                 <div className="text-[9px] font-black text-gray-600 uppercase tracking-[0.3em]">{t.mypage.totalValue}</div>
-                <div className="text-3xl font-black text-white italic">1,245,000 <span className="text-sm font-bold not-italic text-mantle-green">P</span></div>
+                <div className="text-3xl font-black text-white italic">{formatNumber(dbUser ? dbUser.total_points : 1245000)} <span className="text-sm font-bold not-italic text-mantle-green">P</span></div>
              </div>
              <div className="space-y-1">
-                <div className="text-[9px] font-black text-gray-600 uppercase tracking-[0.3em]">{t.mypage.roi}</div>
+                <div className="text-[9px] font-black text-gray-600 uppercase tracking-[0.3em]">RANK CHANGE</div>
                 <div className="text-3xl font-black text-mantle-pink flex items-center justify-end gap-2">
-                   <span className="text-sm">▲</span> 3
+                   <span className="text-sm">▲</span> {dbUser ? dbUser.roi_percentage : 3}
                 </div>
              </div>
              <div className="hidden sm:block space-y-1">
                 <div className="text-[9px] font-black text-gray-600 uppercase tracking-[0.3em]">{t.mypage.globalRank}</div>
-                <div className="text-3xl font-black text-white">#420</div>
+                <div className="text-3xl font-black text-white">#{dbUser ? dbUser.global_rank : 1}</div>
              </div>
           </div>
         </div>
@@ -105,14 +240,10 @@ export const MyPage: React.FC<MyPageProps> = ({ user, onArtistSelect }) => {
                    const isDebuted = artist.status === 'market';
                    const isExpanded = expandedArtistId === artist.id;
                    
-                   // Mock counts
-                   const promoCounts = { 
-                     x: 45, 
-                     instagram: 23, 
-                     youtube: 12, 
-                     wechat: 5, 
-                     weibo: 8 
-                   };
+                   // DB 또는 Mock 프로모션 카운트
+                   const artistPromoCounts = (artist as any).dbArtistId && promoCounts[(artist as any).dbArtistId]
+                     ? promoCounts[(artist as any).dbArtistId]
+                     : { x: 45, instagram: 23, youtube: 12, wechat: 5, weibo: 8 };
 
                    return (
                       <div 
@@ -127,7 +258,7 @@ export const MyPage: React.FC<MyPageProps> = ({ user, onArtistSelect }) => {
                         `}
                       >
                          <div 
-                           onClick={() => toggleExpand(artist.id)}
+                           onClick={() => toggleExpand(artist.id, (artist as any).dbArtistId)}
                            className="grid grid-cols-1 xl:grid-cols-12 gap-4 items-center p-5 cursor-pointer relative z-10"
                          >
                             {/* Left: Artist Info & Holdings (4 Cols) */}
@@ -155,7 +286,7 @@ export const MyPage: React.FC<MyPageProps> = ({ user, onArtistSelect }) => {
                                     <div className="flex items-center gap-2 text-[9px] font-bold uppercase tracking-widest whitespace-nowrap">
                                        <span className="text-gray-500">{t.mypage.holdings}:</span>
                                        <span className={isDebuted ? 'text-white' : 'text-gray-600'}>
-                                          {isDebuted ? '1,420' : '0'}
+                                          {formatNumber((artist as any).dbHoldings !== undefined ? (artist as any).dbHoldings : (isDebuted ? 1420 : 0))}
                                        </span>
                                     </div>
                                 </div>
@@ -166,27 +297,27 @@ export const MyPage: React.FC<MyPageProps> = ({ user, onArtistSelect }) => {
                                {/* X */}
                                <div className="flex items-center gap-2 px-2 py-1.5 bg-black/40 border border-white/10 hover:border-white/30 transition-all group/icon hover:scale-105 shrink-0 whitespace-nowrap">
                                   <XIcon className="w-3 h-3 text-gray-500 group-hover/icon:text-white transition-colors shrink-0" />
-                                  <span className="text-[9px] font-bold text-gray-400 group-hover/icon:text-white">{promoCounts.x}</span>
+                                  <span className="text-[9px] font-bold text-gray-400 group-hover/icon:text-white">{artistPromoCounts.x}</span>
                                </div>
                                {/* Instagram */}
                                <div className="flex items-center gap-2 px-2 py-1.5 bg-black/40 border border-white/10 hover:border-mantle-pink/50 transition-all group/icon hover:scale-105 shrink-0 whitespace-nowrap">
                                   <Instagram className="w-3 h-3 text-gray-500 group-hover/icon:text-pink-500 transition-colors shrink-0" />
-                                  <span className="text-[9px] font-bold text-gray-400 group-hover/icon:text-white">{promoCounts.instagram}</span>
+                                  <span className="text-[9px] font-bold text-gray-400 group-hover/icon:text-white">{artistPromoCounts.instagram}</span>
                                </div>
                                {/* Youtube */}
                                <div className="flex items-center gap-2 px-2 py-1.5 bg-black/40 border border-white/10 hover:border-red-500/50 transition-all group/icon hover:scale-105 shrink-0 whitespace-nowrap">
                                   <Youtube className="w-3 h-3 text-gray-500 group-hover/icon:text-red-500 transition-colors shrink-0" />
-                                  <span className="text-[9px] font-bold text-gray-400 group-hover/icon:text-white">{promoCounts.youtube}</span>
+                                  <span className="text-[9px] font-bold text-gray-400 group-hover/icon:text-white">{artistPromoCounts.youtube}</span>
                                </div>
                                {/* WeChat */}
                                <div className="flex items-center gap-2 px-2 py-1.5 bg-black/40 border border-white/10 hover:border-green-500/50 transition-all group/icon hover:scale-105 shrink-0 whitespace-nowrap">
                                   <MessageCircle className="w-3 h-3 text-gray-500 group-hover/icon:text-green-500 transition-colors shrink-0" />
-                                  <span className="text-[9px] font-bold text-gray-400 group-hover/icon:text-white">{promoCounts.wechat}</span>
+                                  <span className="text-[9px] font-bold text-gray-400 group-hover/icon:text-white">{artistPromoCounts.wechat}</span>
                                </div>
                                {/* Weibo */}
                                <div className="flex items-center gap-2 px-2 py-1.5 bg-black/40 border border-white/10 hover:border-yellow-500/50 transition-all group/icon hover:scale-105 shrink-0 whitespace-nowrap">
                                   <Share2 className="w-3 h-3 text-gray-500 group-hover/icon:text-yellow-500 transition-colors shrink-0" />
-                                  <span className="text-[9px] font-bold text-gray-400 group-hover/icon:text-white">{promoCounts.weibo}</span>
+                                  <span className="text-[9px] font-bold text-gray-400 group-hover/icon:text-white">{artistPromoCounts.weibo}</span>
                                </div>
                             </div>
 
@@ -194,7 +325,7 @@ export const MyPage: React.FC<MyPageProps> = ({ user, onArtistSelect }) => {
                             <div className="xl:col-span-3 flex items-center justify-end gap-4 w-full ml-auto">
                                <div className="text-right space-y-0.5 min-w-0">
                                   <div className={`text-base font-black italic leading-none whitespace-nowrap ${isDebuted ? 'text-mantle-pink' : 'text-white'}`}>
-                                    84,200 <span className="text-[10px] not-italic text-gray-500">P</span>
+                                    {formatNumber((artist as any).dbMyPoints !== undefined ? (artist as any).dbMyPoints : 84200)} <span className="text-[10px] not-italic text-gray-500">P</span>
                                   </div>
                                   <div className="text-[8px] font-black text-gray-600 uppercase tracking-widest text-right whitespace-nowrap truncate">My Points</div>
                                </div>
@@ -223,7 +354,7 @@ export const MyPage: React.FC<MyPageProps> = ({ user, onArtistSelect }) => {
                                            <div className="col-span-5 text-right">{t.mypage.link}</div>
                                         </div>
                                         {/* List */}
-                                        {getMockPromotions(artist.englishName).map((promo) => (
+                                        {getPromotions((artist as any).dbArtistId).map((promo) => (
                                            <div key={promo.id} className="grid grid-cols-12 items-center px-4 py-3 bg-zinc-900/50 border border-white/5 hover:border-white/20 transition-all">
                                               <div className="col-span-3 text-xs font-mono text-gray-400">{promo.date}</div>
                                               <div className="col-span-4 flex items-center gap-2 text-xs font-bold text-white">
@@ -279,8 +410,8 @@ export const MyPage: React.FC<MyPageProps> = ({ user, onArtistSelect }) => {
                       
                       {/* Right: Amount + Date */}
                       <div className="text-right">
-                         <div className={`text-xs font-mono font-bold ${act.type === 'SUPPORT' ? 'text-white' : 'text-mantle-green'}`}>
-                            {act.type === 'SUPPORT' ? '-' : '+'}{act.amount}
+                         <div className={`text-xs font-mono font-bold ${act.type === 'SWAP' ? 'text-red-400' : 'text-mantle-green'}`}>
+                            {act.type === 'SWAP' ? '-' : '+'}{act.amount}
                          </div>
                          <div className="text-[7px] font-bold text-gray-600 uppercase tracking-widest mt-0.5">{act.date}</div>
                       </div>
