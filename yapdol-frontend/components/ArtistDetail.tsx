@@ -1066,6 +1066,8 @@ export const ArtistDetail: React.FC<ArtistDetailProps> = ({ artist, onBack, user
         isOpen={isMissionModalOpen} 
         onClose={() => setIsMissionModalOpen(false)} 
         artistName={displayName}
+        artistId={parseInt(artist.id)}
+        walletAddress={user?.walletAddress}
         onNavigate={onNavigate}
       />
 

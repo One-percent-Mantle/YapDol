@@ -4,40 +4,66 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, ExternalLink, Zap, CheckCircle2, ChevronRight, Sparkles, RotateCcw, LayoutDashboard } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { ViewType } from '../types';
+import { addPromotionHistory } from '../services/api';
 
 interface Mission {
   id: number;
   title: string;
   reward: string;
   link: string;
+  platform: 'x' | 'instagram' | 'youtube';
 }
 
 interface YappingMissionModalProps {
   isOpen: boolean;
   onClose: () => void;
   artistName: string;
+  artistId?: number;
+  walletAddress?: string;
   onNavigate?: (view: ViewType) => void;
 }
 
-export const YappingMissionModal: React.FC<YappingMissionModalProps> = ({ isOpen, onClose, artistName, onNavigate }) => {
+export const YappingMissionModal: React.FC<YappingMissionModalProps> = ({ isOpen, onClose, artistName, artistId, walletAddress, onNavigate }) => {
   const { t } = useLanguage();
   const [submissions, setSubmissions] = useState<Record<number, string>>({});
   const [completed, setCompleted] = useState<Record<number, boolean>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const missions: Mission[] = [
-    { id: 1, title: t.missions.m1, reward: '100 HYPE', link: 'https://x.com' },
-    { id: 2, title: t.missions.m2, reward: '150 HYPE', link: 'https://instagram.com' },
-    { id: 3, title: t.missions.m3, reward: '200 HYPE', link: 'https://youtube.com' },
-    { id: 4, title: t.missions.m4, reward: '100 HYPE', link: '#' },
-    { id: 5, title: t.missions.m5, reward: '100 HYPE', link: '#' },
+    { id: 1, title: t.missions.m1, reward: '100 HYPE', link: 'https://x.com', platform: 'x' },
+    { id: 2, title: t.missions.m2, reward: '150 HYPE', link: 'https://instagram.com', platform: 'instagram' },
+    { id: 3, title: t.missions.m3, reward: '200 HYPE', link: 'https://youtube.com', platform: 'youtube' },
+    { id: 4, title: t.missions.m4, reward: '100 HYPE', link: '#', platform: 'x' },
+    { id: 5, title: t.missions.m5, reward: '100 HYPE', link: '#', platform: 'x' },
   ];
 
   const handleInputChange = (id: number, value: string) => {
     setSubmissions(prev => ({ ...prev, [id]: value }));
   };
 
-  const handleSubmit = (id: number) => {
+  const handleSubmit = async (id: number) => {
     if (!submissions[id]) return;
+    
+    const mission = missions.find(m => m.id === id);
+    if (!mission) return;
+    
+    // DB에 프로모션 히스토리 저장 (walletAddress와 artistId가 있을 때만)
+    if (walletAddress && artistId) {
+      setIsSubmitting(true);
+      const success = await addPromotionHistory(
+        walletAddress,
+        artistId,
+        mission.platform,
+        submissions[id],
+        mission.title
+      );
+      setIsSubmitting(false);
+      
+      if (!success) {
+        console.error('Failed to save promotion history');
+      }
+    }
+    
     setCompleted(prev => ({ ...prev, [id]: true }));
   };
 

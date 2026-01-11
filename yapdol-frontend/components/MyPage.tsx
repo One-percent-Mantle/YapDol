@@ -410,8 +410,8 @@ export const MyPage: React.FC<MyPageProps> = ({ user, onArtistSelect }) => {
                       
                       {/* Right: Amount + Date */}
                       <div className="text-right">
-                         <div className={`text-xs font-mono font-bold ${act.type === 'SWAP' ? 'text-red-400' : 'text-mantle-green'}`}>
-                            {act.type === 'SWAP' ? '-' : '+'}{act.amount}
+                         <div className={`text-xs font-mono font-bold ${(act.type === 'SWAP' || act.type === 'SUPPORT') ? 'text-red-400' : 'text-mantle-green'}`}>
+                            {(act.type === 'SWAP' || act.type === 'SUPPORT') ? '-' : '+'}{act.amount}
                          </div>
                          <div className="text-[7px] font-bold text-gray-600 uppercase tracking-widest mt-0.5">{act.date}</div>
                       </div>

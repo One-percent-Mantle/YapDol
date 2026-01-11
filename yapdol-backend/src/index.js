@@ -103,6 +103,37 @@ app.get('/api/promotion-history/:walletAddress/:artistId', async (req, res) => {
   }
 });
 
+// 프로모션 히스토리 추가 (야핑하기)
+app.post('/api/promotion-history', async (req, res) => {
+  try {
+    const { walletAddress, artistId, platform, link, content } = req.body;
+    
+    // 사용자 ID 조회
+    const userResult = await pool.query(
+      'SELECT id FROM users WHERE wallet_address = $1',
+      [walletAddress]
+    );
+    
+    if (userResult.rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    const userId = userResult.rows[0].id;
+    
+    // 프로모션 히스토리에 추가
+    const result = await pool.query(
+      `INSERT INTO promotion_history (user_id, artist_id, platform, link, content, created_at)
+       VALUES ($1, $2, $3, $4, $5, NOW())
+       RETURNING *`,
+      [userId, artistId, platform, link, content]
+    );
+    
+    res.json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // 활동 내역 조회
 app.get('/api/activity/:walletAddress', async (req, res) => {
   try {

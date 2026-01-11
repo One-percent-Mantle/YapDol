@@ -164,3 +164,23 @@ export async function fetchAgencyStats(): Promise<AgencyStats> {
     return { activeTrainees: 0, globalIcons: 0, activeCampaigns: 0, pendingCampaigns: 0 };
   }
 }
+
+// 프로모션 히스토리 추가 (야핑하기)
+export async function addPromotionHistory(
+  walletAddress: string,
+  artistId: number,
+  platform: 'x' | 'instagram' | 'youtube',
+  link: string,
+  content: string
+): Promise<boolean> {
+  try {
+    const res = await fetch(`${API_BASE}/promotion-history`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ walletAddress, artistId, platform, link, content })
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
