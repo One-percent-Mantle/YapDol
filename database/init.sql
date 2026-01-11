@@ -124,17 +124,23 @@ INSERT INTO artists (english_name, korean_name, agency, image_url, status, hype_
 ('YUNA', '유나', 'ADOR', '/images/yuna.jpg', 'inactive', 0, NULL),
 ('JENNIE', '제니', 'YG', '/images/jennie.jpg', 'market', 5000000, NULL);
 
--- 2. 사용자 데이터 (지갑 주소: 0xa272495f292E2FF1f96A80ff5DbBF7d7E3d396c8)
+-- 2. 사용자 데이터
 INSERT INTO users (wallet_address, username, profile_image, total_points, global_rank, roi_percentage, is_agency, agency_name, agency_access_code) VALUES
 ('0xa272495f292E2FF1f96A80ff5DbBF7d7E3d396c8', 'CryptoFan_KR', '/images/profile1.jpg', 1245000, 1, 3.0, FALSE, NULL, NULL),
+('0x1809864ba4e661fe6A05F808dB7cC09D44125b19', 'HypeMaster_99', '/images/profile2.jpg', 890000, 2, 5.2, FALSE, NULL, NULL),
 ('0xADOR_AGENCY_WALLET_ADDRESS', 'ADOR Entertainment', '/images/ador_logo.jpg', 0, 0, 0, TRUE, 'ADOR', 'YAPDOL-LABEL-2025');
 
 -- 3. 사용자 포트폴리오 (지갑 주소 사용자가 투자한 아티스트)
 -- MOCK_ARTISTS 기준: MINJI, SULYOON, JENNIE (모두 이미지 있음)
 INSERT INTO user_portfolio (user_id, artist_id, holdings, my_points) VALUES
-(1, 1, 1420, 84200),   -- MINJI (market)
-(1, 5, 800, 42000),    -- SULYOON (market) - MOCK_ARTISTS에 있음
-(1, 10, 1420, 65000);  -- JENNIE (market) - MOCK_ARTISTS에 있음
+-- User 1 (CryptoFan_KR)
+(1, 1, 1420, 84200),   -- MINJI (funding)
+(1, 5, 800, 42000),    -- SULYOON (market)
+(1, 10, 1420, 65000),  -- JENNIE (market)
+-- User 2 (HypeMaster_99)
+(2, 5, 2100, 156000),  -- SULYOON (market)
+(2, 10, 950, 78500),   -- JENNIE (market)
+(2, 1, 500, 32000);    -- MINJI (funding)
 
 -- 4. 플랫폼별 프로모션 카운트
 INSERT INTO promotion_counts (user_id, artist_id, platform, count) VALUES
@@ -159,18 +165,31 @@ INSERT INTO promotion_counts (user_id, artist_id, platform, count) VALUES
 
 -- 5. 프로모션 히스토리
 INSERT INTO promotion_history (user_id, artist_id, platform, link, content, created_at) VALUES
+-- User 1 (CryptoFan_KR)
 (1, 1, 'youtube', 'https://youtube.com/watch?v=abc123', 'Fan Reaction Video', '2024-12-20 14:30:00'),
 (1, 1, 'x', 'https://x.com/user/status/123', 'Concert Highlights Thread', '2024-12-18 10:15:00'),
 (1, 1, 'instagram', 'https://instagram.com/p/xyz789', 'Photo Collection Post', '2024-12-15 18:45:00'),
 (1, 5, 'x', 'https://x.com/user/status/456', 'SULYOON Support Post', '2024-12-22 09:00:00'),
 (1, 5, 'youtube', 'https://youtube.com/watch?v=def456', 'Dance Practice Reaction', '2024-12-19 16:20:00'),
-(1, 10, 'instagram', 'https://instagram.com/p/abc123', 'Birthday Celebration Post', '2024-12-17 12:00:00');
+(1, 10, 'instagram', 'https://instagram.com/p/abc123', 'Birthday Celebration Post', '2024-12-17 12:00:00'),
+-- User 2 (HypeMaster_99)
+(2, 5, 'youtube', 'https://youtube.com/watch?v=suly001', 'SULYOON Fancam Edit', '2024-12-21 11:00:00'),
+(2, 5, 'x', 'https://x.com/user/status/suly002', 'SULYOON Appreciation Thread', '2024-12-20 09:30:00'),
+(2, 5, 'instagram', 'https://instagram.com/p/suly003', 'SULYOON Photo Dump', '2024-12-19 14:00:00'),
+(2, 10, 'youtube', 'https://youtube.com/watch?v=jen001', 'JENNIE Solo Reaction', '2024-12-18 16:00:00'),
+(2, 10, 'x', 'https://x.com/user/status/jen002', 'JENNIE Fashion Thread', '2024-12-17 10:00:00'),
+(2, 1, 'instagram', 'https://instagram.com/p/mj001', 'MINJI Fan Art', '2024-12-16 13:00:00');
 
 -- 6. 활동 내역 (Activity Ledger)
 INSERT INTO activity_ledger (user_id, artist_id, activity_type, amount, created_at) VALUES
+-- User 1 (CryptoFan_KR)
 (1, 1, 'SUPPORT', '120 PTS', NOW() - INTERVAL '2 hours'),
 (1, 5, 'REWARD', '450 PTS', NOW() - INTERVAL '5 hours'),
-(1, 10, 'SWAP', '1,000 PTS', NOW() - INTERVAL '1 day');
+(1, 10, 'SWAP', '1,000 PTS', NOW() - INTERVAL '1 day'),
+-- User 2 (HypeMaster_99)
+(2, 5, 'SUPPORT', '250 PTS', NOW() - INTERVAL '3 hours'),
+(2, 10, 'REWARD', '680 PTS', NOW() - INTERVAL '8 hours'),
+(2, 5, 'SWAP', '2,500 PTS', NOW() - INTERVAL '2 days');
 
 -- 7. 캠페인 데이터 (Agency Portal용)
 INSERT INTO campaigns (agency_id, artist_id, duration_days, target_hype_points, current_hype_points, status, ends_at) VALUES
