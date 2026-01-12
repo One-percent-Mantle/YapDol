@@ -30,6 +30,7 @@ import {
 import { Artist, User, ViewType, SupportItem } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
 import { YappingMissionModal } from './YappingMissionModal';
+import { swapTokens, fetchPortfolio, PortfolioItem } from '../services/api';
 
 interface ArtistDetailProps {
   artist: Artist;
@@ -71,9 +72,36 @@ export const ArtistDetail: React.FC<ArtistDetailProps> = ({ artist, onBack, user
   const [viewers, setViewers] = useState(12420);
   const [totalHype, setTotalHype] = useState(artist.hypePoints || 185000);
   
-  // Local state for points management
-  const [userHype, setUserHype] = useState(user?.hypeScore || 84200);
-  const [artistTokens, setArtistTokens] = useState(842); // Initial points for demo
+  // Local state for points management (will be loaded from DB)
+  const [userHype, setUserHype] = useState(0);
+  const [artistTokens, setArtistTokens] = useState(0);
+  const [isLoadingPortfolio, setIsLoadingPortfolio] = useState(true);
+
+  // Load portfolio data from DB
+  useEffect(() => {
+    const loadPortfolio = async () => {
+      if (!user?.walletAddress) {
+        setIsLoadingPortfolio(false);
+        return;
+      }
+
+      try {
+        const portfolio = await fetchPortfolio(user.walletAddress);
+        const artistPortfolio = portfolio.find(p => p.artist_id === parseInt(artist.id));
+
+        if (artistPortfolio) {
+          setUserHype(artistPortfolio.my_points || 0);
+          setArtistTokens(artistPortfolio.holdings || 0);
+        }
+      } catch (error) {
+        console.error('Failed to load portfolio:', error);
+      } finally {
+        setIsLoadingPortfolio(false);
+      }
+    };
+
+    loadPortfolio();
+  }, [user?.walletAddress, artist.id]);
 
   const isYappingParticipant = user !== null && userHype > 0;
   const nextUnlockThreshold = 100000;
@@ -172,13 +200,44 @@ export const ArtistDetail: React.FC<ArtistDetailProps> = ({ artist, onBack, user
     }
   };
 
-  const handleSwapAll = () => {
-    if (userHype > 0) {
-      const rate = 100; 
+  const [isSwapping, setIsSwapping] = useState(false);
+
+  const handleSwapAll = async () => {
+    if (userHype > 0 && user?.walletAddress) {
+      const rate = 1000; // 1000 points = 1 token
       const newTokens = Math.floor(userHype / rate);
-      setArtistTokens(prev => prev + newTokens);
-      setUserHype(0);
-      setIsSwapModalOpen(false);
+
+      if (newTokens > 0) {
+        setIsSwapping(true);
+        try {
+          // Real token minting via API
+          const result = await swapTokens(
+            user.walletAddress,
+            artist.id,
+            userHype,
+            newTokens
+          );
+
+          if (result.success) {
+            console.log('Token minted:', result.transactionHash);
+            // Reload portfolio from DB to get latest values
+            const portfolio = await fetchPortfolio(user.walletAddress);
+            const artistPortfolio = portfolio.find(p => p.artist_id === parseInt(artist.id));
+            if (artistPortfolio) {
+              setUserHype(artistPortfolio.my_points || 0);
+              setArtistTokens(artistPortfolio.holdings || 0);
+            }
+            setIsSwapModalOpen(false);
+          } else {
+            alert(result.message || 'Token swap failed. Please try again.');
+          }
+        } catch (error) {
+          console.error('Token swap error:', error);
+          alert('Token swap failed. Please try again.');
+        } finally {
+          setIsSwapping(false);
+        }
+      }
     }
   };
 
@@ -1032,7 +1091,7 @@ export const ArtistDetail: React.FC<ArtistDetailProps> = ({ artist, onBack, user
                      <div className="h-px bg-white/5 w-full"></div>
                      <div className="flex justify-between items-center">
                         <span className="text-[9px] font-bold text-gray-600 uppercase tracking-widest">Rate</span>
-                        <span className="text-xs font-mono font-bold text-gray-400">100 Hype = 1 {tokenSymbol}</span>
+                        <span className="text-xs font-mono font-bold text-gray-400">1000 Hype = 1 {tokenSymbol}</span>
                      </div>
                   </div>
 
@@ -1045,17 +1104,27 @@ export const ArtistDetail: React.FC<ArtistDetailProps> = ({ artist, onBack, user
                   <div className="p-6 bg-mantle-pink/5 border border-mantle-pink/20 space-y-2">
                      <div className="text-[9px] font-bold text-mantle-pink uppercase tracking-widest">Estimated Output</div>
                      <div className="text-3xl font-black text-white italic tracking-tighter">
-                        +{Math.floor(userHype / 100)} <span className="text-lg not-italic text-mantle-pink ml-2">{tokenSymbol}</span>
+                        +{Math.floor(userHype / 1000)} <span className="text-lg not-italic text-mantle-pink ml-2">{tokenSymbol}</span>
                      </div>
                   </div>
                </div>
 
-               <button 
-                 disabled={userHype === 0}
+               <button
+                 disabled={userHype === 0 || isSwapping || Math.floor(userHype / 1000) === 0}
                  onClick={handleSwapAll}
-                 className="w-full py-5 bg-white text-black text-[10px] font-black uppercase tracking-[0.5em] hover:bg-mantle-pink hover:text-white transition-all disabled:opacity-20"
+                 className="w-full py-5 bg-white text-black text-[10px] font-black uppercase tracking-[0.5em] hover:bg-mantle-pink hover:text-white transition-all disabled:opacity-20 disabled:cursor-not-allowed"
                >
-                  {t.detail.swapButton} (Swap All)
+                  {isSwapping ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                      </svg>
+                      Minting Token...
+                    </span>
+                  ) : (
+                    `${t.detail.swapButton} (Swap All)`
+                  )}
                </button>
             </motion.div>
           </div>

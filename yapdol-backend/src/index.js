@@ -10,7 +10,7 @@ app.use(express.json());
 
 const pool = new Pool({
   host: 'localhost',
-  port: 5432,
+  port: 5433,
   database: 'yapdol',
   user: 'yapdol',
   password: 'yapdol123',
@@ -105,32 +105,66 @@ app.get('/api/promotion-history/:walletAddress/:artistId', async (req, res) => {
 
 // 프로모션 히스토리 추가 (야핑하기)
 app.post('/api/promotion-history', async (req, res) => {
+  const client = await pool.connect();
+
   try {
     const { walletAddress, artistId, platform, link, content } = req.body;
-    
+
+    await client.query('BEGIN');
+
     // 사용자 ID 조회
-    const userResult = await pool.query(
+    const userResult = await client.query(
       'SELECT id FROM users WHERE wallet_address = $1',
       [walletAddress]
     );
-    
+
     if (userResult.rows.length === 0) {
+      await client.query('ROLLBACK');
       return res.status(404).json({ error: 'User not found' });
     }
-    
+
     const userId = userResult.rows[0].id;
-    
+
     // 프로모션 히스토리에 추가
-    const result = await pool.query(
+    const result = await client.query(
       `INSERT INTO promotion_history (user_id, artist_id, platform, link, content, created_at)
        VALUES ($1, $2, $3, $4, $5, NOW())
        RETURNING *`,
       [userId, artistId, platform, link, content]
     );
-    
+
+    // 포트폴리오 확인 및 생성/업데이트 (야핑 시 포인트 적립)
+    const POINTS_PER_YAPPING = 1000; // 야핑 1회당 적립 포인트
+
+    const portfolioResult = await client.query(
+      'SELECT id FROM user_portfolio WHERE user_id = $1 AND artist_id = $2',
+      [userId, artistId]
+    );
+
+    if (portfolioResult.rows.length === 0) {
+      // 포트폴리오가 없으면 생성
+      await client.query(
+        `INSERT INTO user_portfolio (user_id, artist_id, holdings, my_points)
+         VALUES ($1, $2, 0, $3)`,
+        [userId, artistId, POINTS_PER_YAPPING]
+      );
+    } else {
+      // 포트폴리오가 있으면 포인트 추가
+      await client.query(
+        `UPDATE user_portfolio SET my_points = my_points + $1
+         WHERE user_id = $2 AND artist_id = $3`,
+        [POINTS_PER_YAPPING, userId, artistId]
+      );
+    }
+
+    await client.query('COMMIT');
+
     res.json(result.rows[0]);
   } catch (err) {
+    await client.query('ROLLBACK');
     res.status(500).json({ error: err.message });
+  } finally {
+    client.release();
   }
 });
 
@@ -232,7 +266,7 @@ app.get('/api/agency-stats', async (req, res) => {
     const pendingCampaigns = await pool.query(
       "SELECT COUNT(*) FROM campaigns WHERE status = 'pending'"
     );
-    
+
     res.json({
       activeTrainees: parseInt(trainees.rows[0].count),
       globalIcons: parseInt(icons.rows[0].count),
@@ -241,6 +275,118 @@ app.get('/api/agency-stats', async (req, res) => {
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
+  }
+});
+
+// Token Swap (Hype Points → Artist Token)
+app.post('/api/token/swap', async (req, res) => {
+  const client = await pool.connect();
+
+  try {
+    const { walletAddress, artistId, hypePoints, tokensToMint } = req.body;
+
+    // 입력값 검증
+    if (!walletAddress || !artistId || !hypePoints || !tokensToMint) {
+      return res.status(400).json({
+        success: false,
+        tokensReceived: 0,
+        message: 'Missing required fields'
+      });
+    }
+
+    if (hypePoints <= 0 || tokensToMint <= 0) {
+      return res.status(400).json({
+        success: false,
+        tokensReceived: 0,
+        message: 'Invalid amount'
+      });
+    }
+
+    await client.query('BEGIN');
+
+    // 사용자 ID 조회
+    const userResult = await client.query(
+      'SELECT id FROM users WHERE wallet_address = $1',
+      [walletAddress]
+    );
+
+    if (userResult.rows.length === 0) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({
+        success: false,
+        tokensReceived: 0,
+        message: 'User not found'
+      });
+    }
+
+    const userId = userResult.rows[0].id;
+
+    // 사용자 포트폴리오에서 현재 my_points 확인
+    let portfolioResult = await client.query(
+      'SELECT id, my_points, holdings FROM user_portfolio WHERE user_id = $1 AND artist_id = $2',
+      [userId, artistId]
+    );
+
+    // 포트폴리오가 없으면 자동으로 생성 (기본 10만 포인트 지급)
+    if (portfolioResult.rows.length === 0) {
+      const insertResult = await client.query(
+        `INSERT INTO user_portfolio (user_id, artist_id, holdings, my_points)
+         VALUES ($1, $2, 0, 100000)
+         RETURNING id, my_points, holdings`,
+        [userId, artistId]
+      );
+      portfolioResult = insertResult;
+    }
+
+    const portfolio = portfolioResult.rows[0];
+    const currentPoints = parseInt(portfolio.my_points);
+
+    // 포인트 잔액 확인
+    if (currentPoints < hypePoints) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({
+        success: false,
+        tokensReceived: 0,
+        message: 'Insufficient hype points'
+      });
+    }
+
+    // my_points 차감 및 holdings 증가
+    await client.query(
+      `UPDATE user_portfolio
+       SET my_points = my_points - $1, holdings = holdings + $2
+       WHERE id = $3`,
+      [hypePoints, tokensToMint, portfolio.id]
+    );
+
+    // Activity Ledger에 SWAP 활동 기록 추가
+    await client.query(
+      `INSERT INTO activity_ledger (user_id, artist_id, activity_type, amount, created_at)
+       VALUES ($1, $2, 'SWAP', $3, NOW())`,
+      [userId, artistId, `${tokensToMint.toLocaleString()} TOKENS`]
+    );
+
+    await client.query('COMMIT');
+
+    // 가상의 트랜잭션 해시 생성
+    const transactionHash = `0x${Date.now().toString(16)}${Math.random().toString(16).slice(2, 10)}`;
+
+    res.json({
+      success: true,
+      transactionHash,
+      tokensReceived: tokensToMint,
+      message: 'Token swap completed successfully'
+    });
+
+  } catch (err) {
+    await client.query('ROLLBACK');
+    res.status(500).json({
+      success: false,
+      tokensReceived: 0,
+      message: err.message
+    });
+  } finally {
+    client.release();
   }
 });
 

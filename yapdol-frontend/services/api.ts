@@ -184,3 +184,49 @@ export async function addPromotionHistory(
     return false;
   }
 }
+
+// Token Swap Response
+export interface TokenSwapResponse {
+  success: boolean;
+  transactionHash?: string;
+  tokensReceived: number;
+  message?: string;
+}
+
+// Token Swap (Hype Points → Artist Token)
+export async function swapTokens(
+  walletAddress: string,
+  artistId: string,
+  hypePoints: number,
+  tokensToMint: number
+): Promise<TokenSwapResponse> {
+  try {
+    const res = await fetch(`${API_BASE}/token/swap`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        walletAddress,
+        artistId,
+        hypePoints,
+        tokensToMint
+      })
+    });
+
+    if (!res.ok) {
+      const error = await res.json();
+      return {
+        success: false,
+        tokensReceived: 0,
+        message: error.message || 'Token swap failed'
+      };
+    }
+
+    return res.json();
+  } catch (error) {
+    return {
+      success: false,
+      tokensReceived: 0,
+      message: 'Network error occurred'
+    };
+  }
+}
