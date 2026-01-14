@@ -193,7 +193,7 @@ export interface TokenSwapResponse {
   message?: string;
 }
 
-// Token Swap (Hype Points → Artist Token)
+// Token Swap (Hype Points → Artist Token) - Legacy DB-only swap
 export async function swapTokens(
   walletAddress: string,
   artistId: string,
@@ -228,5 +228,24 @@ export async function swapTokens(
       tokensReceived: 0,
       message: 'Network error occurred'
     };
+  }
+}
+
+// Contract Info Response
+export interface ContractInfo {
+  factoryAddress: string | null;
+  signerAddress: string | null;
+  network: string;
+  chainId: number;
+}
+
+// Get Contract Info
+export async function fetchContractInfo(): Promise<ContractInfo | null> {
+  try {
+    const res = await fetch(`${API_BASE}/contract-info`);
+    if (!res.ok) return null;
+    return res.json();
+  } catch {
+    return null;
   }
 }

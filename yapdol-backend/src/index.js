@@ -1,8 +1,17 @@
 import express from 'express';
 import cors from 'cors';
 import pg from 'pg';
+import { ethers } from 'ethers';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const { Pool } = pg;
+
+// Signer for contract interactions
+const SIGNER_PRIVATE_KEY = process.env.SIGNER_PRIVATE_KEY;
+const FACTORY_ADDRESS = process.env.FACTORY_ADDRESS;
+const signer = SIGNER_PRIVATE_KEY ? new ethers.Wallet(SIGNER_PRIVATE_KEY) : null;
 
 const app = express();
 app.use(cors());
@@ -388,6 +397,140 @@ app.post('/api/token/swap', async (req, res) => {
   } finally {
     client.release();
   }
+});
+
+// Token Swap Signature (On-chain swap with signature)
+app.post('/api/token/swap-signature', async (req, res) => {
+  const client = await pool.connect();
+
+  try {
+    const { walletAddress, artistId, hypePoints, tokensToMint } = req.body;
+
+    // Check if signer is configured
+    if (!signer) {
+      return res.status(500).json({
+        success: false,
+        message: 'Signer not configured'
+      });
+    }
+
+    // 입력값 검증
+    if (!walletAddress || !artistId || !hypePoints || !tokensToMint) {
+      return res.status(400).json({
+        success: false,
+        message: 'Missing required fields'
+      });
+    }
+
+    if (hypePoints <= 0 || tokensToMint <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid amount'
+      });
+    }
+
+    await client.query('BEGIN');
+
+    // 사용자 ID 조회
+    const userResult = await client.query(
+      'SELECT id FROM users WHERE wallet_address = $1',
+      [walletAddress]
+    );
+
+    if (userResult.rows.length === 0) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    const userId = userResult.rows[0].id;
+
+    // 사용자 포트폴리오에서 현재 my_points 확인
+    let portfolioResult = await client.query(
+      'SELECT id, my_points, holdings FROM user_portfolio WHERE user_id = $1 AND artist_id = $2',
+      [userId, artistId]
+    );
+
+    // 포트폴리오가 없으면 자동으로 생성 (기본 10만 포인트 지급)
+    if (portfolioResult.rows.length === 0) {
+      const insertResult = await client.query(
+        `INSERT INTO user_portfolio (user_id, artist_id, holdings, my_points)
+         VALUES ($1, $2, 0, 100000)
+         RETURNING id, my_points, holdings`,
+        [userId, artistId]
+      );
+      portfolioResult = insertResult;
+    }
+
+    const portfolio = portfolioResult.rows[0];
+    const currentPoints = parseInt(portfolio.my_points);
+
+    // 포인트 잔액 확인
+    if (currentPoints < hypePoints) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({
+        success: false,
+        message: 'Insufficient hype points'
+      });
+    }
+
+    // my_points 차감 및 holdings 증가
+    await client.query(
+      `UPDATE user_portfolio
+       SET my_points = my_points - $1, holdings = holdings + $2
+       WHERE id = $3`,
+      [hypePoints, tokensToMint, portfolio.id]
+    );
+
+    // Activity Ledger에 SWAP 활동 기록 추가
+    await client.query(
+      `INSERT INTO activity_ledger (user_id, artist_id, activity_type, amount, created_at)
+       VALUES ($1, $2, 'SWAP', $3, NOW())`,
+      [userId, artistId, `${tokensToMint.toLocaleString()} TOKENS`]
+    );
+
+    await client.query('COMMIT');
+
+    // Generate signature for on-chain minting
+    const nonce = Date.now();
+    const messageHash = ethers.solidityPackedKeccak256(
+      ['address', 'uint256', 'uint256', 'uint256', 'uint256'],
+      [walletAddress, artistId, hypePoints, tokensToMint, nonce]
+    );
+    const signature = await signer.signMessage(ethers.getBytes(messageHash));
+
+    res.json({
+      success: true,
+      signature,
+      nonce,
+      factoryAddress: FACTORY_ADDRESS,
+      artistId,
+      hypePoints,
+      tokensToMint,
+      message: 'Signature generated successfully. Call the contract to mint tokens.'
+    });
+
+  } catch (err) {
+    await client.query('ROLLBACK');
+    res.status(500).json({
+      success: false,
+      message: err.message
+    });
+  } finally {
+    client.release();
+  }
+});
+
+// Get contract info
+app.get('/api/contract-info', (req, res) => {
+  res.json({
+    factoryAddress: FACTORY_ADDRESS || null,
+    signerAddress: signer ? signer.address : null,
+    network: 'Mantle Sepolia',
+    chainId: 5003
+  });
 });
 
 const PORT = 3002;

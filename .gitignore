@@ -40,3 +40,11 @@ postgres_data/
 # Misc
 *.local
 .cache/
+
+# Hardhat
+artifacts/
+cache/
+typechain-types/
+
+# Temp files
+tmpclaude-*
